@@ -1,6 +1,6 @@
 ---
 title: "Final Project Proposal: Mapping the Pandemic Landscape "
-output: html_document
+output: github_document
 author: "Evan Kennedy elk2149, Amrutha Banda ab6169, Kaveri Uberoy kiu2103, Suhina Sharma ss7636"
 ---
 ### Motivation: 
