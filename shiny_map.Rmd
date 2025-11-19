@@ -1,0 +1,262 @@
+---
+title: "County Map Explorer"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(shiny)
+library(leaflet)
+library(dplyr)
+library(tigris)
+library(sf)
+library(glue)
+options(tigris_use_cache = TRUE)
+
+covid_demo_final_df <- readRDS("covid_demo_final_df.rds")
+
+# Determine county-level majority for each election year, combine the race proportions into one variable. 
+
+covid_demo_final_df <- covid_demo_final_df |>
+  mutate(
+    majority_2016 = case_when(
+      elections_2016_dem > elections_2016_gop ~ "Democrat",
+      elections_2016_gop > elections_2016_dem ~ "Republican",
+      TRUE ~ "Tie"
+    ),
+    majority_2020 = case_when(
+      elections_2020_dem > elections_2020_gop ~ "Democrat",
+      elections_2020_gop > elections_2020_dem ~ "Republican",
+      TRUE ~ "Tie"
+    ),
+    black_prop = race_black_alone_male + race_black_alone_female
+  )
+
+
+counties_sf <- counties(cb = TRUE, year = 2020) |>
+  st_transform(4326)  # leaflet uses WGS84, so switching to a per county map instead of a per state map. 
+
+counties_joined <- counties_sf |>
+  left_join(covid_demo_final_df, by = c("GEOID" = "fips"))
+
+```
+
+
+
+Column {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+selectInput(
+  inputId = "compare_type",
+  label   = "Choose What to Compare:",
+  choices = c(
+    "Poverty (High vs Low)"          = "poverty",
+    "Proportion black population (high vs low)"         = "race_black",
+    "Political Party Majority (republic vs democrat)"       = "party"
+  )
+)
+
+# Shown only when political comparison chosen, so they can decide which election year they want to look at as well. 
+
+conditionalPanel(
+  condition = "input.compare_type == 'party'",
+  radioButtons(
+    inputId = "election_year",
+    label = "Election Year:",
+    choices = c("2016", "2020"),
+    selected = "2020"
+  )
+)
+
+
+```
+
+Row
+---------------------------------------
+
+## Chart A
+
+```{r}
+renderLeaflet({
+
+  df <- counties_joined
+
+  if (input[["compare_type"]]  == "poverty") {
+
+    high_df <- df |> 
+      filter(poverty_rate > 15)
+      # although 20 is the Us wide cutoff, I used 15 here as it gave a slightly better divide. 
+
+    
+    # just stylistic stuff 
+    leaflet(high_df) |>
+      addProviderTiles("CartoDB.Positron") |>
+      addPolygons(
+        fillColor   = "darkred",
+        fillOpacity = 0.7,
+        color       = "white",
+        weight      = 1,
+        popup       = high_df |>
+          mutate(
+            popup = glue("
+              <strong>{NAME} County </strong><br>
+              Poverty rate: {poverty_rate}
+            ")
+          ) |>
+          pull(popup)
+      )
+
+  } else if (input[["compare_type"]]  == "race_black") {
+     # again, used the 75th percentile as a cutoff here but sort of arbitrary. Could be changed. 
+    cutoff <- quantile(
+      df |> pull(black_prop), 
+      0.75, na.rm = TRUE
+    )
+
+    high_df <- df |> 
+      filter(black_prop >= cutoff)
+
+    leaflet(high_df) |>
+      addProviderTiles("CartoDB.Positron") |>
+      addPolygons(
+        fillColor   = "purple",
+        fillOpacity = 0.7,
+        color       = "white",
+        weight      = 1,
+        popup       = high_df |>
+          mutate(
+            popup = glue("
+              <strong>{NAME} County, {STATEFP}</strong><br>
+              Black population share: {round(black_prop, 3)}
+            ")
+          ) |>
+          pull(popup)
+      )
+
+  } else if (input[["compare_type"]]  == "party") {
+
+    maj_col <- if (input$election_year == "2016") {
+      "majority_2016"
+    } else {
+      "majority_2020"
+    }
+
+    high_df <- df |> 
+      filter(.data[[maj_col]] == "Republican")
+
+    leaflet(high_df) |>
+      addProviderTiles("CartoDB.Positron") |>
+      addPolygons(
+        fillColor   = "red",
+        fillOpacity = 0.7,
+        color       = "white",
+        weight      = 1,
+        popup       = high_df |>
+          mutate(
+            popup = glue("
+              <strong>{NAME} County </strong><br>
+              Majority: Republican ({input$election_year})
+            ")
+          ) |>
+          pull(popup)
+      )
+  }
+
+})
+
+```
+
+## Chart B
+
+```{r}
+renderLeaflet({
+  
+  # Lower Levels (Low Poverty Rate, Democrat, Low proportion black population)
+
+  df <- counties_joined
+
+  if (input[["compare_type"]]  == "poverty") {
+
+    low_df <- df |> 
+      filter(poverty_rate <= 15)
+
+    leaflet(low_df) |>
+      addProviderTiles("CartoDB.Positron") |>
+      addPolygons(
+        fillColor   = "darkgreen",
+        fillOpacity = 0.7,
+        color       = "white",
+        weight      = 1,
+        popup       = low_df |>
+          mutate(
+            popup = glue("
+              <strong>{NAME} County </strong><br>
+              Poverty rate: {poverty_rate}
+            ")
+          ) |>
+          pull(popup)
+      )
+  } else if (input[["compare_type"]]  == "race_black") {
+
+    cutoff <- quantile(
+      df |> pull(black_prop),
+      0.75, 
+      na.rm = TRUE
+    )
+
+    low_df <- df |> 
+      filter(black_prop < cutoff)
+
+    leaflet(low_df) |>
+      addProviderTiles("CartoDB.Positron") |>
+      addPolygons(
+        fillColor   = "lightblue",
+        fillOpacity = 0.7,
+        color       = "white",
+        weight      = 1,
+        popup       = low_df |>
+          mutate(
+            popup = glue("
+              <strong>{NAME} County </strong><br>
+              Black population share: {round(black_prop, 3)}
+            ")
+          ) |>
+          pull(popup)
+      )
+
+  } else if (input[["compare_type"]]  == "party") {
+
+    maj_col <- if (input$election_year == "2016") {
+      "majority_2016"
+    } else {
+      "majority_2020"
+    }
+
+    low_df <- df |> 
+      filter(.data[[maj_col]] == "Democrat")
+
+    leaflet(low_df) |>
+      addProviderTiles("CartoDB.Positron") |>
+      addPolygons(
+        fillColor   = "blue",
+        fillOpacity = 0.7,
+        color       = "white",
+        weight      = 1,
+        popup       = low_df |>
+          mutate(
+            popup = glue("
+              <strong>{NAME} County </strong><br>
+              Majority: Democrat ({input$election_year})
+            ")
+          ) |>
+          pull(popup)
+      )
+  }
+
+})
+```

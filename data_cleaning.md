@@ -210,11 +210,10 @@ df_covid_all_raw =
 
 df_covid_per_year[["county"]] <- tolower(trimws(df_covid_per_year[["county"]]))
 
-final_df <- counties_demo_df |>
+covid_demo_final_df <- counties_demo_df |>
   left_join(
     df_covid_per_year,
     by = c("fips", "county", "state")
   )
+saveRDS(covid_demo_final_df, file = "covid_demo_final_df.rds")
 ```
-
-For covid data: totals of each
