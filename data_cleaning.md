@@ -6,13 +6,13 @@ Data Cleaning
 library(tidyverse)
 ```
 
-    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+    ## ── Attaching core tidyverse packages ───────────────────────── tidyverse 2.0.0 ──
     ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
     ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
     ## ✔ ggplot2   3.5.2     ✔ tibble    3.3.0
     ## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
     ## ✔ purrr     1.1.0     
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ── Conflicts ─────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
     ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
@@ -73,7 +73,7 @@ counties_demo_df =
 ```
 
     ## Rows: 3142 Columns: 237
-    ## ── Column specification ────────────────────────────────────────────────────────
+    ## ── Column specification ─────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr   (4): name, fips, state, zip-codes
     ## dbl (233): land_area (km^2), area (km^2), longitude (deg), latitude (deg), n...
@@ -90,7 +90,7 @@ covid_2020_df =
 ```
 
     ## Rows: 884737 Columns: 6
-    ## ── Column specification ────────────────────────────────────────────────────────
+    ## ── Column specification ─────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr  (3): county, state, fips
     ## dbl  (2): cases, deaths
@@ -107,7 +107,7 @@ covid_2021_df =
 ```
 
     ## Rows: 1185373 Columns: 6
-    ## ── Column specification ────────────────────────────────────────────────────────
+    ## ── Column specification ─────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr  (3): county, state, fips
     ## dbl  (2): cases, deaths
@@ -124,7 +124,7 @@ covid_2022_df =
 ```
 
     ## Rows: 1188042 Columns: 6
-    ## ── Column specification ────────────────────────────────────────────────────────
+    ## ── Column specification ─────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr  (3): county, state, fips
     ## dbl  (2): cases, deaths
@@ -141,7 +141,7 @@ covid_2023_df =
 ```
 
     ## Rows: 267009 Columns: 6
-    ## ── Column specification ────────────────────────────────────────────────────────
+    ## ── Column specification ─────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr  (3): county, state, fips
     ## dbl  (2): cases, deaths
@@ -163,7 +163,7 @@ covid_masking_df =
 ```
 
     ## Rows: 3142 Columns: 6
-    ## ── Column specification ────────────────────────────────────────────────────────
+    ## ── Column specification ─────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr (1): COUNTYFP
     ## dbl (5): NEVER, RARELY, SOMETIMES, FREQUENTLY, ALWAYS
