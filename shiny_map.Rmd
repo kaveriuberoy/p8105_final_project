@@ -76,7 +76,7 @@ selectInput(
   choices = c(
     "Poverty (High vs Low)"                           = "poverty",
     "Proportion black population (high vs low)"       = "race_black",
-    "Political Party Majority (republic vs democrat)" = "party"
+    "Political Party Majority (republican vs democrat)" = "party"
   )
 )
 
@@ -111,7 +111,7 @@ radioButtons(
 Column
 -------------------------------------
 
-### High Poverty / Larger Black Population / Republican Majority)
+### High Poverty / Larger Black Population / Republican Majority
 
 ```{r}
 renderLeaflet({
@@ -152,6 +152,7 @@ renderLeaflet({
       )
 
     leaflet(high_df) |>
+      setView(lng = -98.5795, lat = 39.8283, zoom = 4) |> 
       addProviderTiles("CartoDB.Positron") |>
       addPolygons(
         fillColor   = "darkred",
@@ -197,6 +198,7 @@ renderLeaflet({
       )
 
     leaflet(high_df) |>
+      setView(lng = -98.5795, lat = 39.8283, zoom = 4) |> 
       addProviderTiles("CartoDB.Positron") |>
       addPolygons(
         fillColor   = "purple",
@@ -238,6 +240,7 @@ renderLeaflet({
       )
 
     leaflet(high_df) |>
+      setView(lng = -98.5795, lat = 39.8283, zoom = 4) |> 
       addProviderTiles("CartoDB.Positron") |>
       addPolygons(
         fillColor   = "red",
@@ -308,6 +311,7 @@ renderLeaflet({
       )
 
     leaflet(low_df) |>
+      setView(lng = -98.5795, lat = 39.8283, zoom = 4) |> 
       addProviderTiles("CartoDB.Positron") |>
       addPolygons(
         fillColor = "darkgreen", fillOpacity = 0.7,
@@ -345,6 +349,7 @@ renderLeaflet({
       )
 
     leaflet(low_df) |>
+      setView(lng = -98.5795, lat = 39.8283, zoom = 4) |> 
       addProviderTiles("CartoDB.Positron") |>
       addPolygons(
         fillColor = "lightblue", fillOpacity = 0.7,
@@ -382,6 +387,7 @@ renderLeaflet({
       )
 
     leaflet(low_df) |>
+      setView(lng = -98.5795, lat = 39.8283, zoom = 4) |> 
       addProviderTiles("CartoDB.Positron") |>
       addPolygons(
         fillColor = "blue", fillOpacity = 0.7,
