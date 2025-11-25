@@ -1,0 +1,15 @@
+name: "Mapping the Pandemic Landscape"
+output_dir: "."
+navbar:
+  title: "Mapping the Pandemic Landscape"
+  right:
+    - text: "Final Project Proposal"
+      href: index.html
+    - text: "Shiny Map"
+      href: shiny_map.html 
+    - text: "Amrutha"
+      href: amrutha.html
+    - text: "Suhina"
+      href: suhina.html
+    - icon: fa-github fa-lg
+      href: https://github.com/kaveriuberoy/p8105_final_project

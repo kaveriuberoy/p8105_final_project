@@ -1,9 +1,12 @@
 ---
 title: "County Map Explorer"
-output: 
+output:
   flexdashboard::flex_dashboard:
-    orientation: rows
+    orientation: columns
     vertical_layout: fill
+    theme: 
+      version: 4
+      bootswatch: lux
 runtime: shiny
 ---
 
@@ -15,11 +18,10 @@ library(dplyr)
 library(tigris)
 library(sf)
 library(glue)
+library(stringr)
 options(tigris_use_cache = TRUE)
 
 covid_demo_final_df <- readRDS("covid_demo_final_df.rds")
-
-# Determine county-level majority for each election year, combine the race proportions into one variable. 
 
 covid_demo_final_df <- covid_demo_final_df |>
   mutate(
@@ -36,32 +38,47 @@ covid_demo_final_df <- covid_demo_final_df |>
     black_prop = race_black_alone_male + race_black_alone_female
   )
 
-
 counties_sf <- counties(cb = TRUE, year = 2020) |>
-  st_transform(4326)  # leaflet uses WGS84, so switching to a per county map instead of a per state map. 
+  st_transform(4326)
 
-counties_joined <- counties_sf |>
+# Centroids for circles to overlay on map
+centroids = st_centroid(counties_sf)
+counties_sf$lon = st_coordinates(centroids)[, 1]
+counties_sf$lat = st_coordinates(centroids)[, 2]
+
+counties_joined = counties_sf |>
   left_join(covid_demo_final_df, by = c("GEOID" = "fips"))
+
+covid_rates = readRDS("covid_yearly_rates.rds") |>
+  mutate(
+    # making sure fips is 5 characters
+    fips = as.character(fips),
+    fips = str_pad(fips, 5, pad = "0"),
+    # pulling NYC together, otherwise it wont appear "New York City, New York" to Manhattan's FIPS (36061)
+    fips = if_else(
+      (is.na(fips) | fips == "000NA") & county == "New York City" & state == "New York",
+      "36061",
+      fips
+    )
+  ) |>
+  # dropping "Unknown" pseudo-counties
+  filter(fips != "000NA", !grepl("^Unknown", county))
 
 ```
 
-
-
 Column {.sidebar}
------------------------------------------------------------------------
+-------------------------------------
 
 ```{r}
 selectInput(
   inputId = "compare_type",
   label   = "Choose What to Compare:",
   choices = c(
-    "Poverty (High vs Low)"          = "poverty",
-    "Proportion black population (high vs low)"         = "race_black",
-    "Political Party Majority (republic vs democrat)"       = "party"
+    "Poverty (High vs Low)"                           = "poverty",
+    "Proportion black population (high vs low)"       = "race_black",
+    "Political Party Majority (republic vs democrat)" = "party"
   )
 )
-
-# Shown only when political comparison chosen, so they can decide which election year they want to look at as well. 
 
 conditionalPanel(
   condition = "input.compare_type == 'party'",
@@ -73,27 +90,67 @@ conditionalPanel(
   )
 )
 
+sliderInput(
+  inputId = "year",
+  label   = "COVID Year:",
+  min     = 2020,
+  max     = 2023,
+  value   = 2020,
+  step    = 1,
+  sep     = ""
+)
 
+radioButtons(
+  inputId = "covid_metric",
+  label   = "COVID Metric (raw counts):",
+  choices = c("Cases" = "cases", "Deaths" = "deaths"),
+  selected = "cases"
+)
 ```
 
-Row
----------------------------------------
+Column
+-------------------------------------
 
-## Chart A
+### High Poverty / High Black Population / Republican Majority)
 
 ```{r}
 renderLeaflet({
 
   df <- counties_joined
 
-  if (input[["compare_type"]]  == "poverty") {
+  # Bring in covid raw yearly counts for selected year
+  covid_year <- covid_rates |>
+    filter(year == input$year)
 
-    high_df <- df |> 
-      filter(poverty_rate > 15)
-      # although 20 is the Us wide cutoff, I used 15 here as it gave a slightly better divide. 
+  df <- df |>
+    left_join(covid_year, by = c("GEOID" = "fips"))
 
-    
-    # just stylistic stuff 
+  # Choose raw count column based on metric
+  value_col <- if (input$covid_metric == "cases") "yearly_cases" else "yearly_deaths"
+  metric_label <- if (input$covid_metric == "cases") "Yearly Cases" else "Yearly Deaths"
+
+  # Scale circles relative to the max for THIS year + metric
+  max_val <- df |>
+    pull(all_of(value_col)) |>
+    max(na.rm = TRUE)
+
+  # avoid divide-by-zero if something weird happens
+  if (!is.finite(max_val) || max_val <= 0) max_val <- 1
+
+  if (input$compare_type == "poverty") {
+
+    high_df <- df |> filter(poverty_rate > 15)
+
+    high_df <- high_df |>
+      mutate(
+        covid_raw = .data[[value_col]],
+        radius = if_else(
+          is.na(covid_raw) | covid_raw <= 0,
+          0,
+          4 + 20 * sqrt(covid_raw / max_val)  # bigger & relative to yearly max
+        )
+      )
+
     leaflet(high_df) |>
       addProviderTiles("CartoDB.Positron") |>
       addPolygons(
@@ -101,25 +158,43 @@ renderLeaflet({
         fillOpacity = 0.7,
         color       = "white",
         weight      = 1,
-        popup       = high_df |>
+        popup = high_df |>
           mutate(
-            popup = glue("
-              <strong>{NAME} County </strong><br>
-              Poverty rate: {poverty_rate}
-            ")
+            popup = glue("<strong>{NAME} County</strong><br>Poverty rate: {poverty_rate}")
           ) |>
           pull(popup)
+      ) |>
+      
+      #create circle markers to overlay
+      addCircleMarkers(
+        data   = high_df |> filter(radius > 0),
+        lng    = ~lon,
+        lat    = ~lat,
+        radius = ~radius,
+        stroke = FALSE,
+        fillOpacity = 0.6,
+        fillColor   = "orange",
+        popup = ~glue(
+          "<strong>{NAME} County</strong><br>",
+          "{metric_label}: {covid_raw}<br>",
+          "Year: {input$year}"
+        )
       )
 
-  } else if (input[["compare_type"]]  == "race_black") {
-     # again, used the 75th percentile as a cutoff here but sort of arbitrary. Could be changed. 
-    cutoff <- quantile(
-      df |> pull(black_prop), 
-      0.75, na.rm = TRUE
-    )
+  } else if (input$compare_type == "race_black") {
 
-    high_df <- df |> 
-      filter(black_prop >= cutoff)
+    cutoff <- quantile(df$black_prop, 0.75, na.rm = TRUE)
+    high_df <- df |> filter(black_prop >= cutoff)
+
+    high_df <- high_df |>
+      mutate(
+        covid_raw = .data[[value_col]],
+        radius = if_else(
+          is.na(covid_raw) | covid_raw <= 0,
+          0,
+          4 + 20 * sqrt(covid_raw / max_val)
+        )
+      )
 
     leaflet(high_df) |>
       addProviderTiles("CartoDB.Positron") |>
@@ -128,26 +203,39 @@ renderLeaflet({
         fillOpacity = 0.7,
         color       = "white",
         weight      = 1,
-        popup       = high_df |>
+        popup = high_df |>
           mutate(
-            popup = glue("
-              <strong>{NAME} County, {STATEFP}</strong><br>
-              Black population share: {round(black_prop, 3)}
-            ")
+            popup = glue("<strong>{NAME} County, {STATEFP}</strong><br>Black population share: {round(black_prop, 3)}")
           ) |>
           pull(popup)
+      ) |>
+      
+      #create circle markers to overlay
+      addCircleMarkers(
+        data = high_df |> filter(radius > 0),
+        lng = ~lon, lat = ~lat, radius = ~radius,
+        stroke = FALSE, fillOpacity = 0.6, fillColor = "orange",
+        popup = ~glue(
+          "<strong>{NAME} County</strong><br>",
+          "{metric_label}: {covid_raw}<br>",
+          "Year: {input$year}"
+        )
       )
 
-  } else if (input[["compare_type"]]  == "party") {
+  } else {
 
-    maj_col <- if (input$election_year == "2016") {
-      "majority_2016"
-    } else {
-      "majority_2020"
-    }
+    maj_col <- if (input$election_year == "2016") "majority_2016" else "majority_2020"
+    high_df <- df |> filter(.data[[maj_col]] == "Republican")
 
-    high_df <- df |> 
-      filter(.data[[maj_col]] == "Republican")
+    high_df <- high_df |>
+      mutate(
+        covid_raw = .data[[value_col]],
+        radius = if_else(
+          is.na(covid_raw) | covid_raw <= 0,
+          0,
+          4 + 20 * sqrt(covid_raw / max_val)
+        )
+      )
 
     leaflet(high_df) |>
       addProviderTiles("CartoDB.Positron") |>
@@ -156,107 +244,163 @@ renderLeaflet({
         fillOpacity = 0.7,
         color       = "white",
         weight      = 1,
-        popup       = high_df |>
+        popup = high_df |>
           mutate(
-            popup = glue("
-              <strong>{NAME} County </strong><br>
-              Majority: Republican ({input$election_year})
-            ")
+            popup = glue("<strong>{NAME} County</strong><br>Majority: Republican ({input$election_year})")
           ) |>
           pull(popup)
+      ) |>
+      
+      #create circle markers to overlay
+      addCircleMarkers(
+        data = high_df |> filter(radius > 0),
+        lng = ~lon, lat = ~lat, radius = ~radius,
+        stroke = FALSE, fillOpacity = 0.6, fillColor = "orange",
+        popup = ~glue(
+          "<strong>{NAME} County</strong><br>",
+          "{metric_label}: {covid_raw}<br>",
+          "Year: {input$year}"
+        )
       )
   }
 
 })
-
 ```
 
-## Chart B
+### Low Poverty / Lower Black Population / Democratic Majority
 
 ```{r}
 renderLeaflet({
-  
-  # Lower Levels (Low Poverty Rate, Democrat, Low proportion black population)
 
   df <- counties_joined
 
-  if (input[["compare_type"]]  == "poverty") {
+  # Bring in covid raw yearly counts for selected year
+  covid_year <- covid_rates |>
+    filter(year == input$year)
 
-    low_df <- df |> 
-      filter(poverty_rate <= 15)
+  df <- df |>
+    left_join(covid_year, by = c("GEOID" = "fips"))
 
-    leaflet(low_df) |>
-      addProviderTiles("CartoDB.Positron") |>
-      addPolygons(
-        fillColor   = "darkgreen",
-        fillOpacity = 0.7,
-        color       = "white",
-        weight      = 1,
-        popup       = low_df |>
-          mutate(
-            popup = glue("
-              <strong>{NAME} County </strong><br>
-              Poverty rate: {poverty_rate}
-            ")
-          ) |>
-          pull(popup)
-      )
-  } else if (input[["compare_type"]]  == "race_black") {
+  value_col <- if (input$covid_metric == "cases") "yearly_cases" else "yearly_deaths"
+  metric_label <- if (input$covid_metric == "cases") "Yearly Cases" else "Yearly Deaths"
 
-    cutoff <- quantile(
-      df |> pull(black_prop),
-      0.75, 
-      na.rm = TRUE
-    )
+  max_val <- df |>
+    pull(all_of(value_col)) |>
+    max(na.rm = TRUE)
 
-    low_df <- df |> 
-      filter(black_prop < cutoff)
+  if (!is.finite(max_val) || max_val <= 0) max_val <- 1
 
-    leaflet(low_df) |>
-      addProviderTiles("CartoDB.Positron") |>
-      addPolygons(
-        fillColor   = "lightblue",
-        fillOpacity = 0.7,
-        color       = "white",
-        weight      = 1,
-        popup       = low_df |>
-          mutate(
-            popup = glue("
-              <strong>{NAME} County </strong><br>
-              Black population share: {round(black_prop, 3)}
-            ")
-          ) |>
-          pull(popup)
+  if (input$compare_type == "poverty") {
+
+    low_df <- df |> filter(poverty_rate <= 15)
+
+    low_df <- low_df |>
+      mutate(
+        covid_raw = .data[[value_col]],
+        radius = if_else(
+          is.na(covid_raw) | covid_raw <= 0,
+          0,
+          4 + 20 * sqrt(covid_raw / max_val)
+        )
       )
 
-  } else if (input[["compare_type"]]  == "party") {
+    leaflet(low_df) |>
+      addProviderTiles("CartoDB.Positron") |>
+      addPolygons(
+        fillColor = "darkgreen", fillOpacity = 0.7,
+        color = "white", weight = 1,
+        popup = low_df |> mutate(
+          popup = glue("<strong>{NAME} County</strong><br>Poverty rate: {poverty_rate}")
+        ) |> pull(popup)
+      ) |>
+      
+      #create circle markers to overlay
+      addCircleMarkers(
+        data = low_df |> filter(radius > 0),
+        lng = ~lon, lat = ~lat, radius = ~radius,
+        stroke = FALSE, fillOpacity = 0.6, fillColor = "orange",
+        popup = ~glue(
+          "<strong>{NAME} County</strong><br>",
+          "{metric_label}: {covid_raw}<br>",
+          "Year: {input$year}"
+        )
+      )
 
-    maj_col <- if (input$election_year == "2016") {
-      "majority_2016"
-    } else {
-      "majority_2020"
-    }
+  } else if (input$compare_type == "race_black") {
 
-    low_df <- df |> 
-      filter(.data[[maj_col]] == "Democrat")
+    cutoff <- quantile(df$black_prop, 0.75, na.rm = TRUE)
+    low_df <- df |> filter(black_prop < cutoff)
+
+    low_df <- low_df |>
+      mutate(
+        covid_raw = .data[[value_col]],
+        radius = if_else(
+          is.na(covid_raw) | covid_raw <= 0,
+          0,
+          4 + 20 * sqrt(covid_raw / max_val)
+        )
+      )
 
     leaflet(low_df) |>
       addProviderTiles("CartoDB.Positron") |>
       addPolygons(
-        fillColor   = "blue",
-        fillOpacity = 0.7,
-        color       = "white",
-        weight      = 1,
-        popup       = low_df |>
-          mutate(
-            popup = glue("
-              <strong>{NAME} County </strong><br>
-              Majority: Democrat ({input$election_year})
-            ")
-          ) |>
-          pull(popup)
+        fillColor = "lightblue", fillOpacity = 0.7,
+        color = "white", weight = 1,
+        popup = low_df |> mutate(
+          popup = glue("<strong>{NAME} County</strong><br>Black population share: {round(black_prop,3)}")
+        ) |> pull(popup)
+      ) |>
+      
+      #create circle markers to overlay
+      addCircleMarkers(
+        data = low_df |> filter(radius > 0),
+        lng = ~lon, lat = ~lat, radius = ~radius,
+        stroke = FALSE, fillOpacity = 0.6, fillColor = "orange",
+        popup = ~glue(
+          "<strong>{NAME} County</strong><br>",
+          "{metric_label}: {covid_raw}<br>",
+          "Year: {input$year}"
+        )
+      )
+
+  } else {
+
+    maj_col <- if (input$election_year == "2016") "majority_2016" else "majority_2020"
+    low_df <- df |> filter(.data[[maj_col]] == "Democrat")
+
+    low_df <- low_df |>
+      mutate(
+        covid_raw = .data[[value_col]],
+        radius = if_else(
+          is.na(covid_raw) | covid_raw <= 0,
+          0,
+          4 + 20 * sqrt(covid_raw / max_val)
+        )
+      )
+
+    leaflet(low_df) |>
+      addProviderTiles("CartoDB.Positron") |>
+      addPolygons(
+        fillColor = "blue", fillOpacity = 0.7,
+        color = "white", weight = 1,
+        popup = low_df |> mutate(
+          popup = glue("<strong>{NAME} County</strong><br>Majority: Democrat ({input$election_year})")
+        ) |> pull(popup)
+      ) |>
+      
+      #create circle markers to overlay
+      addCircleMarkers(
+        data = low_df |> filter(radius > 0),
+        lng = ~lon, lat = ~lat, radius = ~radius,
+        stroke = FALSE, fillOpacity = 0.6, fillColor = "orange",
+        popup = ~glue(
+          "<strong>{NAME} County</strong><br>",
+          "{metric_label}: {covid_raw}<br>",
+          "Year: {input$year}"
+        )
       )
   }
 
 })
+
 ```

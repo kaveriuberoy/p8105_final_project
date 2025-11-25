@@ -1,8 +1,13 @@
 ---
-title: "Final Project Proposal: Mapping the Pandemic Landscape "
-output: github_document
+title: "Mapping the Pandemic Landscape"
 author: "Evan Kennedy elk2149, Amrutha Banda ab6169, Kaveri Uberoy kiu2103, Suhina Sharma ss7636"
+output: 
+  html_document:
+    theme: cosmo
 ---
+
+![](https://www.whitehousetx.org/ImageRepository/Document?documentId=480)
+
 ### Motivation: 
 The spread of Covid-19 across the United States reveals how factors such as weather, population density, and socioeconomic conditions can influence health outcomes. This project focuses on mapping Covid-19 cases at the county level to better understand these relationships. By integrating data from The New York Times on county-level Covid-19 cases with weather, population, and socioeconomic information, we aim to identify patterns that may have influenced the spread of the virus. Overall, by studying these relationships we will be able to gain insight into how public health outcomes are shaped by broader ecological and social systems. 
 
@@ -28,3 +33,9 @@ Nov 6:  Decide datasets, finish the initial proposal. <br>
 Nov 10-14: Zoom meeting to discuss splitting up tasks. Start cleaning, merging, and tidying datasets.<br>
 Nov 14-20: Finish cleaning data and start modeling relationships and creating plots. Have another Zoom meeting to check progress and divide sections for the final report.<br> 
 During Thanksgiving week, Dec 1-4: Finalize visualizations, complete report, complete webcast. Make sure everything is submitted by December 6th. 
+
+To see the shiny map click [here](shiny_map.html).
+
+To see Amrutha's content click [here](amrutha.html)
+
+To see Suhina's content click [here](suhina.html)
