@@ -64,6 +64,10 @@ covid_rates = readRDS("covid_yearly_rates.rds") |>
   # dropping "Unknown" pseudo-counties
   filter(fips != "000NA", !grepl("^Unknown", county))
 
+#reference point to set circle size overlay
+global_max_cases  = max(covid_rates$yearly_cases,  na.rm = TRUE)
+global_max_deaths = max(covid_rates$yearly_deaths, na.rm = TRUE)
+
 ```
 
 Column {.sidebar}
@@ -129,13 +133,8 @@ renderLeaflet({
   value_col <- if (input$covid_metric == "cases") "yearly_cases" else "yearly_deaths"
   metric_label <- if (input$covid_metric == "cases") "Yearly Cases" else "Yearly Deaths"
 
-  # Scale circles relative to the max for THIS year + metric
-  max_val <- df |>
-    pull(all_of(value_col)) |>
-    max(na.rm = TRUE)
-
-  # avoid divide-by-zero if something weird happens
-  if (!is.finite(max_val) || max_val <= 0) max_val <- 1
+  # scale for circle size
+  global_max <- if (value_col == "yearly_cases") global_max_cases else global_max_deaths
 
   if (input$compare_type == "poverty") {
 
@@ -147,7 +146,7 @@ renderLeaflet({
         radius = if_else(
           is.na(covid_raw) | covid_raw <= 0,
           0,
-          4 + 20 * sqrt(covid_raw / max_val)  # bigger & relative to yearly max
+          4 + 20 * sqrt(covid_raw / global_max)  # bigger & relative to yearly max
         )
       )
 
@@ -193,7 +192,7 @@ renderLeaflet({
         radius = if_else(
           is.na(covid_raw) | covid_raw <= 0,
           0,
-          4 + 20 * sqrt(covid_raw / max_val)
+          4 + 20 * sqrt(covid_raw / global_max)
         )
       )
 
@@ -235,7 +234,7 @@ renderLeaflet({
         radius = if_else(
           is.na(covid_raw) | covid_raw <= 0,
           0,
-          4 + 20 * sqrt(covid_raw / max_val)
+          4 + 20 * sqrt(covid_raw / global_max)
         )
       )
 
@@ -290,11 +289,8 @@ renderLeaflet({
   value_col <- if (input$covid_metric == "cases") "yearly_cases" else "yearly_deaths"
   metric_label <- if (input$covid_metric == "cases") "Yearly Cases" else "Yearly Deaths"
 
-  max_val <- df |>
-    pull(all_of(value_col)) |>
-    max(na.rm = TRUE)
-
-  if (!is.finite(max_val) || max_val <= 0) max_val <- 1
+  #scale for circle size
+  global_max <- if (value_col == "yearly_cases") global_max_cases else global_max_deaths
 
   if (input$compare_type == "poverty") {
 
@@ -306,7 +302,7 @@ renderLeaflet({
         radius = if_else(
           is.na(covid_raw) | covid_raw <= 0,
           0,
-          4 + 20 * sqrt(covid_raw / max_val)
+          4 + 20 * sqrt(covid_raw / global_max)
         )
       )
 
@@ -344,7 +340,7 @@ renderLeaflet({
         radius = if_else(
           is.na(covid_raw) | covid_raw <= 0,
           0,
-          4 + 20 * sqrt(covid_raw / max_val)
+          4 + 20 * sqrt(covid_raw / global_max)
         )
       )
 
@@ -382,7 +378,7 @@ renderLeaflet({
         radius = if_else(
           is.na(covid_raw) | covid_raw <= 0,
           0,
-          4 + 20 * sqrt(covid_raw / max_val)
+          4 + 20 * sqrt(covid_raw / global_max)
         )
       )
 
