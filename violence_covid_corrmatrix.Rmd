@@ -1,0 +1,64 @@
+---
+title: "Interactive Violence Correlation Matrix"
+date: "2025-11-26"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(heatmaply)
+library(RColorBrewer)
+```
+
+
+
+```{r}
+
+#Correlation Matrix 
+
+
+
+corr_data= 
+  covid_shootings_2020 |>
+  select(
+    shootings_per_100k,
+    covid_deaths_per_100k_2020,
+    covid_cases_per_100k_2020,
+    violent_crime_rate,
+    homicides_per_100k) |>
+  drop_na()
+
+
+corr_mat <- cor(corr_data)
+
+
+redblue_palette= 
+  colorRampPalette(c("navy", "white", "darkred"))(256)
+
+# Interactive heatmap
+heatmaply_cor(
+  corr_mat,
+  xlab = "Variables",
+  ylab = "Variables",
+  main = "Interactive Correlation Matrix: COVID-19 & Community Violence",
+  colors = redblue_palette,
+
+  k_col = 2,
+  k_row = 2,
+
+  fontsize_row = 12,
+  fontsize_col = 12,
+  
+  symm = TRUE,
+
+  grid_color = "grey85",
+  grid_width = 0.0001,
+
+  hide_colorbar = FALSE
+)
+```
+The interactive correlation matrix shows how COVID-19 outcomes and violence-related indicators relate to each other across U.S. counties. COVID-19 cases per 100,000 and COVID-19 deaths per 100,000 are strongly correlated, which means counties with a heavier case burden also experienced higher mortality. Homicides per 100,000 and violent crime rates also cluster together, showing that general community violence and lethal violence tend to rise and fall together. However,Fatal police shootings per 100,000 display only weak correlations with all other variables, including homicide rates, violent crime, and COVID-19 outcomes. This means that fatal police shootings do not follow the same pattern as broader community violence and do not have a strong linear relationship with COVID-19 case or death rates. Overall, the matrix highlights two clear clusters (COVID burden and general violence) while showing that fatal police shootings vary independently from both.
+
+```
+
