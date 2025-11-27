@@ -34,8 +34,8 @@ Nov 10-14: Zoom meeting to discuss splitting up tasks. Start cleaning, merging, 
 Nov 14-20: Finish cleaning data and start modeling relationships and creating plots. Have another Zoom meeting to check progress and divide sections for the final report.<br> 
 During Thanksgiving week, Dec 1-4: Finalize visualizations, complete report, complete webcast. Make sure everything is submitted by December 6th. 
 
-To see the shiny map click [here](shiny_map.html).
+To see an interactive map of covid cases and deaths across the county click [here](shiny_map.html).
 
-To see Amrutha's content click [here](amrutha.html)
+To see an analysis of COIVD 19 and Violence click [here](violence_covid.html)
 
-To see Suhina's content click [here](suhina.html)
+To see to see an analysis of COVID 19, poverty and race click [here](Poverty_Race_COVID.html)

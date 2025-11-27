@@ -5,11 +5,11 @@ navbar:
   right:
     - text: "Final Project Proposal"
       href: index.html
-    - text: "Shiny Map"
+    - text: "Covid by County: Interactive Map"
       href: shiny_map.html 
-    - text: "Amrutha"
-      href: amrutha.html
-    - text: "Suhina"
-      href: suhina.html
+    - text: "Poverty and Race"
+      href: Poverty_Race_COVID.html
+    - text: "Violence"
+      href: violence_covid.html
     - icon: fa-github fa-lg
       href: https://github.com/kaveriuberoy/p8105_final_project

@@ -1,6 +1,8 @@
 ---
 title: "Poverty & Race and COVID"
-output: html_document
+output: 
+  html_document:
+    theme: cosmo
 date: "2025-11-26"
 ---
 

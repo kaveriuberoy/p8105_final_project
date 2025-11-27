@@ -1,7 +1,9 @@
 ---
 title: "Interactive Violence Correlation Matrix"
 date: "2025-11-26"
-output: html_document
+output: 
+  html_document:
+    theme: cosmo
 ---
 
 ```{r}
@@ -17,7 +19,7 @@ library(RColorBrewer)
 
 #Correlation Matrix 
 
-
+covid_shootings_2020 <- readRDS("covid_shootings_2020.rds")
 
 corr_data= 
   covid_shootings_2020 |>

@@ -1,7 +1,9 @@
 ---
 title: "Violence and Covid"
 date: "2025-11-26"
-output: github_document
+output: 
+  html_document:
+    theme: cosmo
 ---
 
 ```{r}
@@ -137,6 +139,8 @@ covid_shootings_2020=
 covid_cases_per_100k_2020 = (covid_cases_2020 / population_2019) * 1e5,
 covid_deaths_per_100k_2020 = (covid_deaths_2020 / population_2019) * 1e5
 )
+
+saveRDS(covid_shootings_2020, "covid_shootings_2020.rds")
 ```
 
 Visualizations 

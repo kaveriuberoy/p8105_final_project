@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2025-11-26" />
+
+<title>Violence and Covid</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Mapping the Pandemic Landscape</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="index.html">Final Project Proposal</a>
+</li>
+<li>
+  <a href="shiny_map.html">Covid by County: Interactive Map</a>
+</li>
+<li>
+  <a href="Poverty_Race_COVID.html">Poverty and Race</a>
+</li>
+<li>
+  <a href="violence_covid.html">Violence</a>
+</li>
+<li>
+  <a href="https://github.com/kaveriuberoy/p8105_final_project">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Violence and Covid</h1>
+<h4 class="date">2025-11-26</h4>
+
+</div>
+
+
+<pre class="r"><code>library(tidyverse)
+library(janitor)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;janitor&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     chisq.test, fisher.test</code></pre>
+<pre class="r"><code>library(lubridate)
+library(tidyr)
+library(broom)
+library(ggplot2)</code></pre>
+<pre class="r"><code>covid_demo_final_df &lt;- readRDS(&quot;covid_demo_final_df.rds&quot;)</code></pre>
+<pre class="r"><code>#Covid+Homicide at County-year level 
+
+covid_homicide_by_year= 
+  covid_demo_final_df |&gt;
+  select(
+  state, county, fips, deaths_homicides,
+  starts_with(&quot;total_cases_&quot;),
+  starts_with(&quot;total_deaths_&quot;)) |&gt;
+
+pivot_longer(
+cols = starts_with(&quot;total_&quot;),
+names_to = &quot;name&quot;,
+values_to = &quot;value&quot;
+) |&gt;
+separate_wider_delim(
+name,
+delim = &quot;_&quot;,
+names = c(&quot;total&quot;, &quot;measure&quot;, &quot;year&quot;)
+) |&gt;
+mutate(
+measure = case_when(
+measure == &quot;cases&quot; ~ &quot;covid_cases&quot;,
+measure == &quot;deaths&quot; ~ &quot;covid_deaths&quot;,
+TRUE ~ measure
+),
+year = as.integer(year)
+) |&gt;
+pivot_wider(
+names_from = measure,
+values_from = value
+) |&gt;
+filter(year %in% 2020:2023) |&gt;
+drop_na(covid_cases, covid_deaths, deaths_homicides)</code></pre>
+<pre class="r"><code>state_lookup= 
+  tibble(
+    state= state.name,
+    state_abbr = state.abb)
+
+covid_homicide_by_year=
+covid_homicide_by_year |&gt;
+left_join(state_lookup, by = &quot;state&quot;)</code></pre>
+<pre class="r"><code>state_year_summary= 
+  covid_homicide_by_year |&gt;
+  group_by(state_abbr, year) |&gt;
+  summarise(
+  total_covid_deaths  = sum(covid_deaths,     na.rm = TRUE),
+  total_covid_cases   = sum(covid_cases,      na.rm = TRUE),
+  total_homicides     = sum(deaths_homicides, na.rm = TRUE),
+  .groups = &quot;drop&quot;)</code></pre>
+<pre class="r"><code>shootings_long= 
+  covid_demo_final_df |&gt;
+  select(
+    county, state, fips,
+    population_2019,
+    health_violent_crime_rate,
+    deaths_homicides,
+    matches(&quot;fatal_police_shootings_total_\\d{4}$&quot;)
+  ) |&gt;
+  pivot_longer(
+    cols = matches(&quot;fatal_police_shootings_total_\\d{4}$&quot;),
+    names_to = &quot;year&quot;,
+    values_to = &quot;fatal_shootings&quot;
+  ) |&gt;
+  mutate(
+    year = str_extract(year, &quot;\\d{4}&quot;),
+    year = as.integer(year)
+  ) |&gt;
+  filter(year %in% 2017:2020)
+
+
+shootings_summary= 
+  shootings_long |&gt;
+  group_by(county, state, fips) |&gt;
+  summarise(
+    total_shootings_2017_2020 = sum(fatal_shootings, na.rm = TRUE),
+    population_2019 = first(population_2019),
+    violent_crime_rate = first(health_violent_crime_rate),
+    deaths_homicides = first(deaths_homicides),
+    .groups = &quot;drop&quot;) |&gt;
+  mutate(
+    shootings_per_100k = (total_shootings_2017_2020 / population_2019) * 1e5,
+    homicides_per_100k = (deaths_homicides / population_2019) * 1e5)</code></pre>
+<pre class="r"><code>#Joining Fatal Shootings to Covid 2020
+
+covid_2020_by_county= 
+  covid_homicide_by_year |&gt;
+  filter(year == 2020) |&gt;
+  select(
+    state, county, fips,
+    covid_cases_2020 = covid_cases,
+    covid_deaths_2020 = covid_deaths)
+
+covid_shootings_2020=
+  shootings_summary |&gt;
+  left_join(
+    covid_2020_by_county,
+    by = c(&quot;state&quot;, &quot;county&quot;, &quot;fips&quot;)
+    ) |&gt;
+  mutate(
+covid_cases_per_100k_2020 = (covid_cases_2020 / population_2019) * 1e5,
+covid_deaths_per_100k_2020 = (covid_deaths_2020 / population_2019) * 1e5
+)
+
+saveRDS(covid_shootings_2020, &quot;covid_shootings_2020.rds&quot;)</code></pre>
+<p>Visualizations</p>
+<pre class="r"><code>#Top 15 Counties Plot 
+top15_shootings_covid= 
+  covid_shootings_2020 |&gt;
+  filter(
+    !is.na(shootings_per_100k),
+    !is.na(covid_deaths_per_100k_2020),
+    total_shootings_2017_2020 &gt; 0
+    ) |&gt;
+  slice_max(shootings_per_100k, n = 15)
+
+ggplot(
+top15_shootings_covid,
+aes(
+x = reorder(paste0(county, &quot;, &quot;, state), shootings_per_100k),
+y = shootings_per_100k,
+fill = covid_deaths_per_100k_2020
+)
+) +
+geom_col() +
+coord_flip() +
+scale_fill_viridis_c(option = &quot;magma&quot;) +
+labs(
+title = &quot;Top 15 Counties by Fatal Police Shootings per 100k (2017–2020)&quot;,
+subtitle = &quot;Bar color indicates COVID-19 deaths per 100k in 2020&quot;,
+x = &quot;County, State&quot;,
+y = &quot;Fatal police shootings per 100,000 residents&quot;,
+fill = &quot;COVID deaths\nper 100k (2020)&quot;
+) +
+theme_minimal()</code></pre>
+<p><img src="violence_covid_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+This plot highlights the 15 counties with the highest fatal police
+shooting rates between 2017 and 2020. The bar height shows shootings per
+100,000 residents, and the fill color shows COVID-19 deaths per 100,000
+in 2020. This lets me visually check whether places with high exposure
+to police violence also experienced high COVID mortality.</p>
+<pre class="r"><code>ggplot(
+  covid_shootings_2020 |&gt;
+    drop_na(shootings_per_100k, covid_deaths_per_100k_2020),
+  aes(x = shootings_per_100k, y = covid_deaths_per_100k_2020)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = &quot;lm&quot;, se = TRUE, color = &quot;black&quot;) +
+  labs(
+    title = &quot;Relationship Between Fatal Police Shootings and COVID-19 Mortality (2020)&quot;,
+    x = &quot;Fatal police shootings per 100,000 (2017–2020)&quot;,
+    y = &quot;COVID-19 deaths per 100,000 (2020)&quot;
+  ) +
+  theme_minimal()</code></pre>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="violence_covid_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+This scatterplot illustrates the relationship between fatal police
+shootings per 100,000 residents (summed from 2017 to 2020) and COVID-19
+deaths per 100,000 in 2020 across U.S. counties. The points represent
+individual counties, and the fitted linear trend line shows that there
+is no strong association between fatal police shootings and COVID-19
+mortality. Most counties cluster near zero fatal shootings, and the
+regression line is nearly flat, suggesting that the level of police
+violence in a county did not meaningfully predict COVID-19 death
+rates.</p>
+<pre class="r"><code>#Regression Models 
+
+analysis_df= 
+  covid_shootings_2020 |&gt;
+  select(
+    shootings_per_100k,
+    homicides_per_100k,
+    violent_crime_rate,
+    covid_deaths_per_100k_2020,
+    covid_cases_per_100k_2020) |&gt;
+  drop_na()
+
+# 1) Crude regression: fatal police shootings and COVID deaths
+model1= 
+  lm(
+  covid_deaths_per_100k_2020 ~ shootings_per_100k,
+  data = analysis_df)
+summary(model1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = covid_deaths_per_100k_2020 ~ shootings_per_100k, 
+##     data = analysis_df)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -11029  -6579  -3157   3163  92186 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)        10888.78     268.89  40.495   &lt;2e-16 ***
+## shootings_per_100k    41.62      93.26   0.446    0.655    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 10570 on 2063 degrees of freedom
+## Multiple R-squared:  9.652e-05,  Adjusted R-squared:  -0.0003882 
+## F-statistic: 0.1991 on 1 and 2063 DF,  p-value: 0.6555</code></pre>
+<pre class="r"><code># 2) Crude regression: violent crime rate and COVID deaths
+model2= 
+  lm(
+  covid_deaths_per_100k_2020 ~ violent_crime_rate,
+  data = analysis_df)
+summary(model2)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = covid_deaths_per_100k_2020 ~ violent_crime_rate, 
+##     data = analysis_df)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -18647  -6120  -2942   2614  91609 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)        7381.187    401.867   18.37   &lt;2e-16 ***
+## violent_crime_rate   12.224      1.138   10.74   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 10290 on 2063 degrees of freedom
+## Multiple R-squared:  0.05299,    Adjusted R-squared:  0.05253 
+## F-statistic: 115.4 on 1 and 2063 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code># 3) Multiple regression:
+
+model3= 
+  lm(
+  covid_deaths_per_100k_2020 ~ shootings_per_100k + 
+    violent_crime_rate + 
+    homicides_per_100k,
+  data = analysis_df)
+summary(model3)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = covid_deaths_per_100k_2020 ~ shootings_per_100k + 
+##     violent_crime_rate + homicides_per_100k, data = analysis_df)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -24912  -5737  -2392   2583  87396 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)        6191.972    412.236  15.020   &lt;2e-16 ***
+## shootings_per_100k -214.984     88.949  -2.417   0.0157 *  
+## violent_crime_rate    3.261      1.317   2.475   0.0134 *  
+## homicides_per_100k  810.014     64.914  12.478   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 9922 on 2061 degrees of freedom
+## Multiple R-squared:  0.1196, Adjusted R-squared:  0.1183 
+## F-statistic: 93.34 on 3 and 2061 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code># Visualization for Model 1
+ggplot(
+  analysis_df,
+  aes(x = shootings_per_100k, y = covid_deaths_per_100k_2020)
+) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = &quot;lm&quot;, se = TRUE, color = &quot;blue&quot;) +
+  labs(
+    title = &quot;Model 1: COVID-19 Deaths vs Fatal Police Shootings&quot;,
+    x = &quot;Fatal police shootings per 100k (2017–2020)&quot;,
+    y = &quot;COVID-19 deaths per 100k (2020)&quot;
+  ) +
+  theme_minimal()</code></pre>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="violence_covid_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre class="r"><code># Visualization for Model 2
+ggplot(
+  analysis_df,
+  aes(x = violent_crime_rate, y = covid_deaths_per_100k_2020)
+) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = &quot;lm&quot;, se = TRUE, color = &quot;darkgreen&quot;) +
+  labs(
+    title = &quot;Model 2: COVID-19 Deaths vs Violent Crime Rate&quot;,
+    x = &quot;Violent crime rate&quot;,
+    y = &quot;COVID-19 deaths per 100k (2020)&quot;
+  ) +
+  theme_minimal()</code></pre>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="violence_covid_files/figure-html/unnamed-chunk-11-2.png" width="672" /></p>
+<pre class="r"><code>#Visualization for Model 3 
+
+coef_df= tidy(model3)
+
+coef_df= 
+  coef_df |&gt; filter(term != &quot;(Intercept)&quot;)
+
+# Plot coefficients
+ggplot(coef_df, aes(x = term, y = estimate)) +
+  geom_point(size = 3, color = &quot;darkred&quot;) +
+  geom_errorbar(aes(ymin = estimate - std.error,
+                    ymax = estimate + std.error),
+                width = 0.2, color = &quot;black&quot;) +
+  coord_flip() +
+  labs(
+    title = &quot;Multiple Regression Coefficient Plot&quot;,
+    x = &quot;Predictor&quot;,
+    y = &quot;Estimated Effect on COVID-19 Deaths per 100k&quot;
+  ) +
+  theme_minimal()</code></pre>
+<p><img src="violence_covid_files/figure-html/unnamed-chunk-11-3.png" width="672" /></p>
+<p>model 1: This scatterplot explores whether counties with more fatal
+police shootings also experienced higher COVID-19 mortality in 2020.
+Most counties have zero or very few fatal police shootings per 100k,
+which creates heavy clustering on the left side of the graph. The
+regression line is flat, indicating little to no linear relationship
+between fatal police shootings and COVID-19 death rates. While these
+forms of structural violence may be connected through deeper social
+factors, this crude model does not show a strong direct association.</p>
+<p>model 2: This plot examines whether violent crime rates are
+associated with COVID-19 mortality at the county level. Here, the
+regression line slopes upward, suggesting that counties with higher
+violent crime rates tend to experience higher COVID-19 deaths per 100k.
+Although the relationship is still noisy, the positive trend indicates
+that broader community violence may be linked with higher pandemic
+vulnerability.</p>
+<p>model 3: In multiple regression, homicide rates and violent crime
+were strong predictors of COVID-19 mortality, while fatal police
+shootings were not. This suggests that structural violence and long-term
+community disadvantage, rather than isolated rare police encounters,
+were more strongly linked to COVID-19 vulnerability.</p>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
