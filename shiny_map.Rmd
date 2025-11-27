@@ -9,7 +9,7 @@ output:
       bootswatch: lux
 runtime: shiny
 ---
-
+  
 ```{r setup, include=FALSE}
 library(flexdashboard)
 library(shiny)
@@ -73,6 +73,8 @@ global_max_deaths = max(covid_rates$yearly_deaths, na.rm = TRUE)
 Column {.sidebar}
 -------------------------------------
 
+### Compare Groups Across Time
+
 ```{r}
 selectInput(
   inputId = "compare_type",
@@ -111,6 +113,10 @@ radioButtons(
   selected = "cases"
 )
 ```
+
+<a href="index.html" class="btn btn-primary">
+  ← Back to Website
+</a>
 
 Column
 -------------------------------------
