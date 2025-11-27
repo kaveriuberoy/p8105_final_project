@@ -1,5 +1,5 @@
 ---
-title: "County Map Explorer"
+title: "Covid by County: Interactive Map"
 output:
   flexdashboard::flex_dashboard:
     orientation: columns
