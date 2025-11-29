@@ -18,11 +18,11 @@ library(tidyverse)
     ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 
 ``` r
-library(dplyr)
 library(tidyr)
 library(lubridate)
 library(stringr)
 library(tidycensus)
+library(dplyr)
 
 # all demographic data. currently selecting for name, fips, lat and long, race, population 2019, deaths by homicide, life expectancy, fatal police shootings 2017,2018,2019, 2020, average income, dem/gop for 2016, 2020, poverty rate, children in poverty, 80th and 20th percentile incomes, violent crime rate. This one contains everything. I've divided them into subcategories, so that if someone wants to use them for a particular analysis, they can select from it easily to create some mini dfs. 
 
@@ -83,8 +83,8 @@ counties_demo_df =
 
 ``` r
 # nyt covid data per year, with all the info in them. 
-covid_2020_df = 
-  read_csv(file = "./data/us-counties-2020.csv") |>
+covid_2020 <-
+  read_csv("./data/us-counties-2020.csv") |>
   janitor::clean_names() |>
   mutate(year = 2020)
 ```
@@ -100,8 +100,8 @@ covid_2020_df =
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-covid_2021_df = 
-  read_csv(file = "./data/us-counties-2021.csv") |>
+covid_2021 <-
+  read_csv("./data/us-counties-2021.csv") |>
   janitor::clean_names() |>
   mutate(year = 2021)
 ```
@@ -117,8 +117,8 @@ covid_2021_df =
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-covid_2022_df = 
-  read_csv(file = "./data/us-counties-2022.csv") |>
+covid_2022 <-
+  read_csv("./data/us-counties-2022.csv") |>
   janitor::clean_names() |>
   mutate(year = 2022)
 ```
@@ -134,8 +134,8 @@ covid_2022_df =
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-covid_2023_df = 
-  read_csv(file = "./data/us-counties-2023.csv") |>
+covid_2023 <-
+  read_csv("./data/us-counties-2023.csv") |>
   janitor::clean_names() |>
   mutate(year = 2023)
 ```
@@ -151,6 +151,15 @@ covid_2023_df =
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
+covid_all <-
+  bind_rows(covid_2020, covid_2021, covid_2022, covid_2023) |>
+  mutate(
+    date  = as.Date(date),
+    fips  = fips |> as.character() |> str_pad(5, pad = "0"),
+    cases = cases |> as.numeric(),
+    deaths = deaths |> as.numeric()
+  )
+
 # nyt masking data, all from july 2020, peak covid, from survey data as well. Divided into high mask use and low mask use columns for simplicity. 
 
 covid_masking_df =
@@ -172,86 +181,23 @@ covid_masking_df =
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-# all the covid data with sums per year of cases and deaths per county per year. 
-
-df_covid_per_year =
-  bind_rows(covid_2020_df, covid_2021_df, covid_2022_df, covid_2023_df) |>
-  group_by(county, state, fips, year) |>
-  summarise(
-    total_cases = sum(cases, na.rm = TRUE),
-    total_deaths = sum(deaths, na.rm = TRUE),
-    .groups = "drop"
-  ) |>
-    pivot_wider(
-    names_from = year,
-    values_from = c(total_cases, total_deaths),
-    names_glue = "{.value}_{year}"
-  ) |>
-  mutate(fips = sprintf("%05d", as.numeric(fips))) |>
-  left_join(
-    covid_masking_df |>
-      select(COUNTYFP, high_mask_use, low_mask_use),
-    by = c("fips" = "COUNTYFP")
-  )
-
-# for Evan's analysis : all the COVID data by county, but not with sums/totals, all raw data. Also including masking survey data in here in case. 
-
-df_covid_all_raw =
-  bind_rows(covid_2020_df, covid_2021_df, covid_2022_df, covid_2023_df) |>
-  pivot_wider(
-    id_cols = c(fips, county, state),
-    names_from = c(date),
-    values_from = c(cases, deaths),
-    names_glue = "{date}_{.value}"
-  ) |>
-  mutate(fips = sprintf("%05d", as.numeric(fips))) |>
-  left_join(
-    covid_masking_df |>
-      select(COUNTYFP, high_mask_use, low_mask_use),
-    by = c("fips" = "COUNTYFP")
-  )
-
 # covid data joined with counties demographic data. 
 # some things counties_demo_df data treats as counties, such as boroughs in nyc and alaska boroughs, not in the nyt data. So just matched whatever we could for now. We can discuss how we want to handle this later. 
 
-df_covid_per_year[["county"]] <- tolower(trimws(df_covid_per_year[["county"]]))
-
-covid_demo_final_df <- counties_demo_df |>
-  left_join(
-    df_covid_per_year,
-    by = c("fips", "county", "state")
-  )
-saveRDS(covid_demo_final_df, file = "covid_demo_final_df.rds")
-
-# generating yearly counts of joined raw covid data ELK
-
-covid_all = bind_rows(
-  covid_2020_df |>  mutate(year = 2020),
-  covid_2021_df |>  mutate(year = 2021),
-  covid_2022_df |>  mutate(year = 2022),
-  covid_2023_df |>  mutate(year = 2023)
-) |> 
+covid_all_clean <-
+  covid_all |>
+  arrange(fips, date) |>
+  group_by(fips, county, state) |>
   mutate(
-    date = as.Date(date),                   
-    fips = str_pad(as.character(fips), 5, pad = "0"),
-    cases  = as.numeric(cases),
-    deaths = as.numeric(deaths)
-  )
-
-#cleaning and organizing this data
-covid_all_clean <- covid_all |> 
-  arrange(fips, date) |> 
-  group_by(fips, county, state) |> 
-  mutate(
-    cases_cum_fixed  = cummax(coalesce(cases, 0)),
-    deaths_cum_fixed = cummax(coalesce(deaths, 0)),
+    cases_cum_fixed  = cummax(replace_na(cases, 0)),
+    deaths_cum_fixed = cummax(replace_na(deaths, 0)),
     year = year(date)
-  ) |> 
+  ) |>
   ungroup()
 
 # finding the cumulative end of year counts
-covid_eoy <- covid_all_clean %>%
-  group_by(fips, county, state, year) %>%
+covid_eoy <- covid_all_clean |>
+  group_by(fips, county, state, year) |>
   summarise(
     cases_eoy  = max(cases_cum_fixed,  na.rm = TRUE),
     deaths_eoy = max(deaths_cum_fixed, na.rm = TRUE),
@@ -259,24 +205,25 @@ covid_eoy <- covid_all_clean %>%
   )
 
 # subtracting end of year counts to find yearly cases and deaths
-covid_yearly_counts <- covid_eoy %>%
-  arrange(fips, year) %>%
-  group_by(fips, county, state) %>%
+covid_yearly_counts <- covid_eoy |>
+  arrange(fips, year) |>
+  group_by(fips, county, state) |>
   mutate(
     yearly_cases  = cases_eoy  - lag(cases_eoy,  default = 0),
     yearly_deaths = deaths_eoy - lag(deaths_eoy, default = 0)
-  ) %>%
+  ) |>
   ungroup()
 
 #using tidy census to calculate per/100000 rates
 #pulling population from tidy census
+
 pop_df <- get_acs(
   geography = "county",
   variables = "B01003_001",
   year = 2020,        
   survey = "acs5",
   geometry = FALSE
-) %>%
+) |>
   transmute(
     fips = GEOID,
     population = estimate
@@ -287,15 +234,31 @@ pop_df <- get_acs(
 
 ``` r
 #joining with yearly counts
-covid_rates <- covid_yearly_counts %>%
+covid_rates <- covid_yearly_counts |>
   left_join(pop_df, by = "fips")
 
 #doing the math to calcuate rates
-covid_rates <- covid_rates %>%
+
+covid_rates <- covid_rates |>
   mutate(
     cases_per_100k  = (yearly_cases  / population) * 100000,
     deaths_per_100k = (yearly_deaths / population) * 100000
   )
 
+# combining demographic data with covid yearly data 
+
+covid_demo_final_df <-
+  counties_demo_df |>
+  left_join(
+    covid_yearly_counts |> select(fips, year, yearly_cases, yearly_deaths),
+    by = "fips"
+  ) |>
+  left_join(
+    covid_masking_df |> select(COUNTYFP, high_mask_use, low_mask_use),
+    by = c("fips" = "COUNTYFP")
+  )
+
+
 saveRDS(covid_rates, "covid_yearly_rates.rds")
+saveRDS(covid_demo_final_df, "covid_demo_final_df.rds")
 ```
