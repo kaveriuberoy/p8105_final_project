@@ -238,10 +238,8 @@ renderLeaflet({
   
   metric <- if (input$covid_metric == "cases") "covid_cases" else "covid_deaths"
   
-  # Your requested change: make numeric
   df <- df |> mutate(fill_value = as.numeric(.data[[metric]]))
   
-  # Your requested change: palette using df$fill_value
 pal <- colorNumeric(
  palette = if (metric == "covid_cases") brewer.pal(9, "YlGn") else brewer.pal(9, "PuRd"), # <--- CHANGED
  domain = df$fill_value,
@@ -280,10 +278,8 @@ renderLeaflet({
   
   metric <- if (input$covid_metric == "cases") "covid_cases" else "covid_deaths"
   
-  # Your requested change: make numeric
   df <- df |> mutate(fill_value = as.numeric(.data[[metric]]))
   
-  # Your requested change: palette using df$fill_value
 pal <- colorNumeric(
  palette = if (metric == "covid_cases") brewer.pal(9, "YlGn") else brewer.pal(9, "PuRd"), # <--- CHANGED
  domain = df$fill_value,
