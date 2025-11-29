@@ -18,8 +18,24 @@ covid_demo_final_df
 
 
 ```{r}
-final_df = covid_demo_final_df |> 
-  select(county, state, race_non_hispanic_white_alone_male, race_non_hispanic_white_alone_female, race_black_alone_male, race_black_alone_female, race_asian_alone_male, race_asian_alone_female, race_hispanic_male, race_hispanic_male, race_hispanic_female, health_percent_children_in_poverty,avg_income, poverty_rate, health_80th_percentile_income, health_20th_percentile_income, total_cases_2020, total_cases_2021, total_cases_2022, total_cases_2023, total_deaths_2020, total_deaths_2021, total_deaths_2022, total_deaths_2023, population_2019)
+final_df_1 = covid_demo_final_df |> 
+  select(county, state, race_non_hispanic_white_alone_male, race_non_hispanic_white_alone_female, race_black_alone_male, race_black_alone_female, race_asian_alone_male, race_asian_alone_female, race_hispanic_male, race_hispanic_male, race_hispanic_female, health_percent_children_in_poverty,avg_income, poverty_rate, health_80th_percentile_income, health_20th_percentile_income, year, yearly_cases, yearly_deaths, population_2019)
+
+final_df_1
+```
+```{r}
+final_df <- final_df_1 |> 
+  mutate(year = as.character(year)) |> 
+  pivot_wider(
+    id_cols = c(county, state, race_non_hispanic_white_alone_male, race_non_hispanic_white_alone_female, 
+                race_black_alone_male, race_black_alone_female, race_asian_alone_male, race_asian_alone_female, 
+                race_hispanic_male, race_hispanic_female, health_percent_children_in_poverty, avg_income, 
+                poverty_rate, health_80th_percentile_income, health_20th_percentile_income, population_2019),
+    names_from = year,
+    values_from = c(yearly_cases, yearly_deaths),
+    names_glue = "{.value}_{year}"
+  ) 
+
 
 final_df
 ```
@@ -29,17 +45,17 @@ final_df
 final_df_inequality = final_df |> 
   mutate(
     inequality = health_80th_percentile_income / health_20th_percentile_income, 
-    cases_percap_2020 = total_cases_2020 / population_2019,
-    deaths_percap_2020 = total_deaths_2020 / population_2019,
-    cases_percap_2023  = total_cases_2023 / population_2019,
-    deaths_percap_2023 = total_deaths_2023 / population_2019,
-    deaths_percap_2021 = total_deaths_2021 / population_2019,
-    cases_percap_2021  = total_cases_2021 / population_2019,
-    deaths_percap_2022 = total_deaths_2022 / population_2019,
-    cases_percap_2022  = total_cases_2022 / population_2019,
-    death_decline_pct_change = (total_deaths_2021 - total_deaths_2023) / total_deaths_2021 * 100,
-    total_cases_percap = (total_cases_2020 + total_cases_2021 + total_cases_2022 + total_cases_2023)/ population_2019, 
-    total_deaths_percap = (total_deaths_2020 + total_deaths_2021 + total_deaths_2022 + total_deaths_2023)/ population_2019,
+    cases_percap_2020 = yearly_cases_2020 / population_2019,
+    deaths_percap_2020 = yearly_deaths_2020 / population_2019,
+    cases_percap_2023  = yearly_cases_2023 / population_2019,
+    deaths_percap_2023 = yearly_deaths_2023 / population_2019,
+    deaths_percap_2021 = yearly_deaths_2021 / population_2019,
+    cases_percap_2021  = yearly_cases_2021 / population_2019,
+    deaths_percap_2022 = yearly_deaths_2022 / population_2019,
+    cases_percap_2022  = yearly_cases_2022 / population_2019,
+    death_decline_pct_change = (yearly_deaths_2020 - yearly_deaths_2023) / yearly_deaths_2020 * 100,
+    total_cases_percap = (yearly_cases_2020 + yearly_cases_2021 + yearly_cases_2022 + yearly_cases_2023)/ population_2019, 
+    total_deaths_percap = (yearly_deaths_2020 + yearly_deaths_2021 + yearly_deaths_2022 + yearly_deaths_2023)/ population_2019,
   )
 
 final_df_inequality
@@ -47,7 +63,6 @@ final_df_inequality
 
 
 ```{r}
-# Scatterplot: Total Cases Per Capita vs Inequality Index
 ggplot(final_df_inequality,
        aes(x = inequality, y = total_cases_percap)) +
   geom_point(alpha = 0.6) +
@@ -60,7 +75,6 @@ ggplot(final_df_inequality,
   theme_minimal()
 
 
-# Scatterplot: Total Deaths Per Capita vs Inequality Index
 ggplot(final_df_inequality,
        aes(x = inequality, y = total_deaths_percap)) +
   geom_point(alpha = 0.6) +
@@ -83,7 +97,6 @@ cases_long = final_df_inequality |>
   ) |> 
   mutate(year = as.factor(year))
 
-# Deaths per capita long format
 deaths_long = final_df_inequality |> 
   pivot_longer(
     cols = starts_with("deaths_percap_"),
@@ -99,11 +112,11 @@ ggplot(cases_long, aes(x = inequality, y = cases_percap)) +
   geom_smooth(method = "lm", se = FALSE, color = "darkred") +
   facet_wrap(~ year, ncol = 3) +
   labs(
-    title = "Income Inequality vs COVID-19 Cases Per Capita (2021–2023)",
+    title = "Income Inequality vs COVID-19 Cases Per Capita (2020–2023)",
     x = "Income Inequality (80th / 20th percentile income)",
     y = "Cases Per Capita"
   ) +
-  coord_cartesian(ylim = c(0, 250)) +
+  coord_cartesian(ylim = c(0, 0.50)) +
   theme_minimal()
 
 ggplot(deaths_long, aes(x = inequality, y = deaths_percap)) +
@@ -111,23 +124,11 @@ ggplot(deaths_long, aes(x = inequality, y = deaths_percap)) +
   geom_smooth(method = "lm", se = FALSE, color = "darkblue") +
   facet_wrap(~ year, ncol = 3) +
   labs(
-    title = "Income Inequality vs COVID-19 Deaths Per Capita (2021–2023)",
+    title = "Income Inequality vs COVID-19 Deaths Per Capita (2020–2023)",
     x = "Income Inequality (80th / 20th percentile income)",
     y = "Deaths Per Capita"
   ) +
   theme_minimal()
-
-
-ggplot(final_df_inequality, aes(x = inequality, y = death_decline_pct_change)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = TRUE, color = "darkgreen") +
-  labs(
-    title = "Percent Decline in COVID-19 Deaths (2021 → 2023) by Income Inequality",
-    x = "Income Inequality (80th / 20th percentile income)",
-    y = "Percent Decline in Deaths (%)"
-  ) +
-  coord_cartesian(ylim = c(-600, 250)) +
-  theme_minimal() 
 ```
 
 ```{r}
@@ -140,7 +141,7 @@ ggplot(cases_long, aes(x = poverty_rate, y = cases_percap)) +
     x = "Poverty Rate (%)",
     y = "Cases Per Capita"
   ) +
-  coord_cartesian(ylim = c(0, 250)) +
+  coord_cartesian(ylim = c(0, 0.50)) +
   theme_minimal()
 
 ggplot(deaths_long, aes(x = poverty_rate, y = deaths_percap)) +
@@ -165,7 +166,7 @@ summary(lm_cases_all)
 lm_deaths_all = lm(deaths_percap ~ inequality * year, data = deaths_long)
 summary(lm_deaths_all)
 ```
-The regression analyses reveal that income inequality is a significant positive predictor of both COVID-19 cases and deaths per capita from 2021 to 2023, though the strength of this relationship varies by year. For cases, the association with inequality was strongest in 2022, where the increase in cases per capita per unit of inequality was more than double that of 2021, while the effect in 2023 was slightly weaker and not significantly different from 2021. Regarding deaths, inequality consistently predicted higher death rates, with a stronger effect in 2022 compared to 2021; however, in 2023, the relationship weakened significantly, indicating a reduced impact of income inequality on COVID-19 deaths that year. These findings suggest that income inequality played a notable role in COVID-19 burden, with temporal variations potentially reflecting changes in pandemic dynamics, public health interventions, or other contextual factors across the years.
+The analysis examined the relationship between inequality and per capita COVID-19 cases and deaths across different years. For cases per capita, the overall effect of inequality was not statistically significant; however, the interaction between inequality and the year 2022 was strongly positive, indicating that inequality was associated with increased cases specifically in that year. Additionally, case rates differed significantly across years, with 2021 and 2022 showing higher rates compared to the baseline year, while 2023 showed a decline. In contrast, inequality had a significant positive association with deaths per capita overall, suggesting that higher inequality corresponded to higher death rates. This relationship varied by year: the effect of inequality on deaths was stronger in 2021 but weakened and even reversed in 2022 and 2023. These findings highlight that the impact of inequality on COVID-19 outcomes changed over time, emphasizing the importance of considering temporal dynamics in understanding health disparities during the pandemic.
 
 ## Race Analysis
 
@@ -194,31 +195,26 @@ df_long
 ```
 
 ```{r}
-# Load libraries
 library(dplyr)
 library(heatmaply)
 
-
-corr_df = df_race_combined |> 
-  select(
-    race_hispanic,
-    race_white,
-    race_black,
-    race_asian,
-    total_cases_percap,
-    total_deaths_percap
-  )
-
-corr_matrix = cor(corr_df, use = "complete.obs")
+corr_matrix = cor(
+  df_race_combined |> 
+    select(race_white, race_black, race_asian, race_hispanic),
+  df_race_combined |> 
+    select(total_cases_percap, total_deaths_percap),
+  use = "complete.obs"
+)
 
 heatmaply(
   corr_matrix,
-  xlab = "Variables",
-  ylab = "Variables",
-  main = "Correlation Matrix: Race and COVID Outcomes",
+  xlab = "Outcome Variables",
+  ylab = "Race Variables",
+  main = "Correlation between Race and COVID Outcomes",
   colors = colorRampPalette(c("red", "white", "blue"))(200),
-  limits = c(-1, 1) 
+  limits = c(-1, 1)
 )
+
 ```
 
 
@@ -236,8 +232,8 @@ df_final_pivot = df_long |>
   )
 
 plot_race_vs_outcome = function(data, measure_filter, year_filter) {
-  p = ggplot(
-    data |>  filter(measure == measure_filter, year == year_filter),
+  ggplot(
+    data |> filter(measure == measure_filter, year == year_filter),
     aes(x = race_prop, y = percap_value)
   ) +
     geom_point(alpha = 0.6) +
@@ -250,30 +246,63 @@ plot_race_vs_outcome = function(data, measure_filter, year_filter) {
       y = paste0(tools::toTitleCase(measure_filter), " Per Capita")
     ) +
     theme_minimal()
-  
-  if (measure_filter == "cases" && year_filter == "2022") {
-    p = p + coord_cartesian(ylim = c(0, 250))
-  }
-  
-  if (measure_filter == "cases" && year_filter == "2023") {
-    p = p + coord_cartesian(ylim = c(0, 75))
-  }
-  
-  return(p)
 }
 
 ```
 
 ```{r}
-plot_race_vs_outcome(df_final_pivot, "cases", "2020")
 plot_race_vs_outcome(df_final_pivot, "deaths", "2020")
-plot_race_vs_outcome(df_final_pivot, "cases", "2021")
 plot_race_vs_outcome(df_final_pivot, "deaths", "2021")
-plot_race_vs_outcome(df_final_pivot, "cases", "2022")
 plot_race_vs_outcome(df_final_pivot, "deaths", "2022")
-plot_race_vs_outcome(df_final_pivot, "cases", "2023")
 plot_race_vs_outcome(df_final_pivot, "deaths", "2023")
 ```
 
+```{r}
+
+results_deaths = df_final_pivot |> 
+  filter(measure == "deaths") |>  
+  group_by(race, year, measure) |> 
+  do(broom::tidy(lm(percap_value ~ race_prop, data = .))) |> 
+  filter(term == "race_prop") |> 
+  ungroup()
+
+sig_results_deaths = results_deaths |> 
+  filter(p.value < 0.05)
+
+cleaned_sig_results_deaths = sig_results_deaths |> 
+  select(race, year, p.value)
 
 
+cleaned_sig_results_deaths
+
+```
+
+```{r}
+
+all_race_years = expand.grid(
+  race = unique(cleaned_sig_results_deaths$race),
+  year = unique(cleaned_sig_results_deaths$year)
+)
+
+signif_df = all_race_years |> 
+  mutate(significant = FALSE) |> 
+  left_join(cleaned_sig_results_deaths |>  mutate(significant = TRUE) |>  select(race, year, significant),
+            by = c("race", "year")) |> 
+  mutate(significant = ifelse(is.na(significant.y), significant.x, significant.y)) |> 
+  select(race, year, significant)
+
+ggplot(signif_df, aes(x = year, y = race, fill = significant)) +
+  geom_tile(color = "white") +
+  scale_fill_manual(values = c("TRUE" = "steelblue", "FALSE" = "gray90"),
+                    labels = c(" NOT Significant", "Significant")) +
+  labs(
+    title = "Significant Associations of Race by Year (Deaths)",
+    x = "Year",
+    y = "Race",
+    fill = "Significance"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+The analysis reveals that the proportion of the Asian population in counties was consistently and strongly associated with COVID-19 death rates across all years from 2020 to 2023, indicating persistent disparities affecting this group throughout the pandemic. In contrast, the Black population showed a significant association with COVID-19 deaths primarily during the early years of 2020 and 2021, with this relationship weakening in subsequent years. The Hispanic and White populations exhibited significant associations in 2020, 2022, and 2023, but not in 2021, suggesting that the impact of these populations on COVID-19 mortality fluctuated over time. These patterns suggest that the relationship between race and COVID-19 mortality was dynamic, reflecting changing social, economic, and public health factors over the course of the pandemic.
