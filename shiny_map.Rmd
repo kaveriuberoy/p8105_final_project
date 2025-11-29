@@ -19,6 +19,7 @@ library(tigris)
 library(sf)
 library(glue)
 library(stringr)
+library(RColorBrewer)
 
 options(tigris_use_cache = TRUE)
 
@@ -61,20 +62,11 @@ covid_demo_final_df <- covid_demo_final_df |>
     black_prop = race_black_alone_male + race_black_alone_female
   )
 
-# Load county shapes and centroids, Transform points back to lon/lat
+# for heat map, updated to remove centroids. 
 
 counties_sf <- counties(cb = TRUE, year = 2020) |> 
-  st_transform(4326)
-
-# Compute centroids on geometry already in WGS84
-pts <- st_point_on_surface(counties_sf)
-
-counties_sf <- counties_sf |>
-  mutate(
-    lon = st_coordinates(pts)[,1],
-    lat = st_coordinates(pts)[,2],
-    GEOID = str_pad(GEOID, 5, pad = "0")
-  )
+  st_transform(4326) |>
+  mutate(GEOID = str_pad(GEOID, 5, pad = "0"))
 
 # Join county shapes with demographics
 
@@ -84,13 +76,26 @@ counties_joined <- counties_sf |>
 # Precompute thresholds 
 
 black_cutoff <- quantile(counties_joined$black_prop, 0.75, na.rm = TRUE)
-mask_cutoff  <- quantile(counties_joined$mask_use_pct, 0.75, na.rm = TRUE)
+mask_cutoff  <- quantile(counties_joined$high_mask_use, 0.75, na.rm = TRUE)
 
-# global max for circles
+# global max for heatmap
 
 global_max_cases  <- max(covid_rates$yearly_cases,  na.rm = TRUE)
 global_max_deaths <- max(covid_rates$yearly_deaths, na.rm = TRUE)
 
+# global color palettes for cases & deaths
+
+pal_cases <- colorNumeric(
+ palette = brewer.pal(9, "YlGn"), # <--- CHANGED
+ domain = covid_rates$yearly_cases,
+ na.color = "#f0f0f0"
+)
+
+pal_deaths <- colorNumeric(
+ palette = brewer.pal(9, "PuRd"), 
+ domain = covid_rates$yearly_deaths,
+ na.color = "#f0f0f0"
+ )
 
 filtered_data <- reactive({
   
@@ -127,28 +132,9 @@ filtered_data <- reactive({
     low_df  <- df |> filter(.data[[maj_col]] == "Democrat")
     
   } else if (input$compare_type == "mask_use") {
-    high_df <- df |> filter(mask_use_pct >= mask_cutoff)
-    low_df  <- df |> filter(mask_use_pct < mask_cutoff)
+    high_df <- df |> filter(high_mask_use >= mask_cutoff)
+    low_df  <- df |> filter(high_mask_use < mask_cutoff)
   }
-  
-  # Add radius to both subsets
-  high_df <- high_df |> mutate(
-    covid_raw = .data[[metric_col]],
-    radius = if_else(
-      is.na(covid_raw) | covid_raw <= 0,
-      0,
-      4 + 20 * sqrt(covid_raw / global_max)
-    )
-  )
-  
-  low_df <- low_df |> mutate(
-    covid_raw = .data[[metric_col]],
-    radius = if_else(
-      is.na(covid_raw) | covid_raw <= 0,
-      0,
-      4 + 20 * sqrt(covid_raw / global_max)
-    )
-  )
   
   # Return BOTH groups
   list(high = high_df, low = low_df)
@@ -237,22 +223,35 @@ Column
 renderLeaflet({
   df <- filtered_data()$high
   
+  metric <- if (input$covid_metric == "cases") "covid_cases" else "covid_deaths"
+  
+  # Your requested change: make numeric
+  df <- df |> mutate(fill_value = as.numeric(.data[[metric]]))
+  
+  # Your requested change: palette using df$fill_value
+pal <- colorNumeric(
+ palette = if (metric == "covid_cases") brewer.pal(9, "YlGn") else brewer.pal(9, "PuRd"), # <--- CHANGED
+ domain = df$fill_value,
+ na.color = "#f0f0f0"
+ )
+  
   leaflet(df) |>
     setView(lng = -98.6, lat = 39.8, zoom = 4) |>
     addProviderTiles("CartoDB.Positron") |>
     addPolygons(
-      fillColor   = "steelblue",
-      fillOpacity = 0.6,
+      fillColor   = pal(df$fill_value),
+      fillOpacity = 0.8,
       color       = "white",
-      weight      = 0.5,
-      popup = format_popup(df, input$compare_type, input$year)
+      weight      = 0.4,
+      stroke      = TRUE,
+      popup       = format_popup(df, input$compare_type, input$year)
     ) |>
-    addCircleMarkers(
-      lng = ~lon, lat = ~lat,
-      radius = ~radius,
-      stroke = FALSE,
-      fillOpacity = 0.5,
-      fillColor = "orange"
+    addLegend(
+      position = "bottomright",
+      pal      = pal,
+      values   = df$fill_value,
+      title    = if (metric == "covid_cases") "COVID Cases" else "COVID Deaths",
+      opacity  = 0.8
     )
 })
 ```
@@ -266,22 +265,35 @@ Column
 renderLeaflet({
   df <- filtered_data()$low
   
+  metric <- if (input$covid_metric == "cases") "covid_cases" else "covid_deaths"
+  
+  # Your requested change: make numeric
+  df <- df |> mutate(fill_value = as.numeric(.data[[metric]]))
+  
+  # Your requested change: palette using df$fill_value
+pal <- colorNumeric(
+ palette = if (metric == "covid_cases") brewer.pal(9, "YlGn") else brewer.pal(9, "PuRd"), # <--- CHANGED
+ domain = df$fill_value,
+ na.color = "#f0f0f0"
+ )
+  
   leaflet(df) |>
     setView(lng = -98.6, lat = 39.8, zoom = 4) |>
     addProviderTiles("CartoDB.Positron") |>
     addPolygons(
-      fillColor   = "lightgray",
-      fillOpacity = 0.6,
+      fillColor   = pal(df$fill_value),
+      fillOpacity = 0.8,
       color       = "white",
-      weight      = 0.5,
-      popup = format_popup(df, input$compare_type, input$year)
+      weight      = 0.4,
+      stroke      = TRUE,
+      popup       = format_popup(df, input$compare_type, input$year)
     ) |>
-    addCircleMarkers(
-      lng = ~lon, lat = ~lat,
-      radius = ~radius,
-      stroke = FALSE,
-      fillOpacity = 0.5,
-      fillColor = "orange"
+    addLegend(
+      position = "bottomright",
+      pal      = pal,
+      values   = df$fill_value,
+      title    = if (metric == "covid_cases") "COVID Cases" else "COVID Deaths",
+      opacity  = 0.8
     )
 })
 
