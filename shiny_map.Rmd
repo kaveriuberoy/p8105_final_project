@@ -44,6 +44,19 @@ covid_rates <- covid_rates |>
   ) |>
   filter(fips != "000NA", !grepl("^Unknown", county))
   
+nyc_borough_fips <- c("36005", "36047", "36061", "36081", "36085")
+
+nyc_row <- covid_rates |> filter(fips == "36061")
+
+# Duplicate for other boroughs
+nyc_expanded <- lapply(nyc_borough_fips, function(f) {
+  nyc_row |> mutate(fips = f)
+}) |> bind_rows()
+
+# Remove any other NYC row & replace with 5-borough version
+covid_rates <- covid_rates |>
+  filter(!(fips %in% nyc_borough_fips)) |>
+  bind_rows(nyc_expanded)
 
 # Add majority party and black population proportion
 
