@@ -34,7 +34,12 @@ covid_demo_final_df <- covid_demo_final_df |>
 covid_rates <- covid_rates |>
   mutate(
     fips = str_pad(as.character(fips), 5, pad = "0"),
-    year = as.numeric(year)
+    year = as.numeric(year),
+    fips = if_else(
+      (is.na(fips) | fips == "000NA") & county == "New York City" & state == "New York",
+      "36061",
+      fips
+    )
   ) |>
   filter(fips != "000NA", !grepl("^Unknown", county))
   
