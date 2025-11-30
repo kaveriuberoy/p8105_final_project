@@ -68,5 +68,5 @@ heatmaply_cor(
 )
 ```
 The interactive correlation matrix shows how COVID-19 outcomes and violence-related indicators relate to each other across U.S. counties. COVID-19 cases per 100,000 and COVID-19 deaths per 100,000 are strongly correlated, which means counties with a heavier case burden also experienced higher mortality. Homicides per 100,000 and violent crime rates also cluster together, showing that general community violence and lethal violence tend to rise and fall together. However,Fatal police shootings per 100,000 display only weak correlations with all other variables, including homicide rates, violent crime, and COVID-19 outcomes. This means that fatal police shootings do not follow the same pattern as broader community violence and do not have a strong linear relationship with COVID-19 case or death rates. Overall, the matrix highlights two clear clusters (COVID burden and general violence) while showing that fatal police shootings vary independently from both.
-```
+
 
