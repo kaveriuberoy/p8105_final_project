@@ -77,7 +77,7 @@ covid_demo_final_df = covid_demo_final_df |>
     black_prop = race_black_alone_male + race_black_alone_female
   )
 
-# load, keep only needed cols, then simplify geometry to save memory
+# load, keep only needed data, then simplify geometry to save memory
 counties_sf_raw = counties(cb = TRUE, year = 2020) |> 
   st_transform(4326) |>
   mutate(GEOID = str_pad(GEOID, 5, pad = "0")) |>
