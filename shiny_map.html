@@ -1873,7 +1873,8 @@ window.FlexDashboardComponents.push({
 <div>
 <select id="compare_type" class="shiny-input-select"><option value="poverty" selected>Poverty (High vs Low)</option>
 <option value="race_black">Proportion black population (high vs low)</option>
-<option value="party">Political Party Majority (republican vs democrat)</option></select>
+<option value="party">Political Party Majority (Republican vs Democrat)</option>
+<option value="mask_use">Mask Usage (High vs Low)</option></select>
 <script type="application/json" data-for="compare_type" data-nonempty="">{"plugins":["selectize-plugin-a11y"]}</script>
 </div>
 </div>
@@ -1901,7 +1902,7 @@ window.FlexDashboardComponents.push({
 <input class="js-range-slider" id="year" data-skin="shiny" data-min="2020" data-max="2023" data-from="2020" data-step="1" data-grid="true" data-grid-num="3" data-grid-snap="false" data-prettify-separator="" data-prettify-enabled="false" data-keyboard="true" data-data-type="number"/>
 </div>
 <div id="covid_metric" class="form-group shiny-input-radiogroup shiny-input-container" role="radiogroup" aria-labelledby="covid_metric-label">
-<label class="control-label" id="covid_metric-label" for="covid_metric">COVID Metric (raw counts):</label>
+<label class="control-label" id="covid_metric-label" for="covid_metric">COVID Metric:</label>
 <div class="shiny-options-group">
 <div class="radio">
 <label>
@@ -1923,27 +1924,25 @@ window.FlexDashboardComponents.push({
 </div>
 <div id="section-column-1" class="section level2">
 <h2>Column</h2>
-<div
-id="section-high-poverty-larger-black-population-republican-majority"
-class="section level3">
-<h3>High Poverty / Larger Black Population / Republican Majority</h3>
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
-<div class="leaflet html-widget html-widget-output shiny-report-size html-fill-item" id="outf885ff78cd632ac0" style="width:100%;height:400px;"></div>
+<div id="out79d4c184c53f64a8" class="shiny-text-output"></div>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
 </div>
+<div class="leaflet html-widget html-widget-output shiny-report-size html-fill-item" id="outf84e9dfb7d1399da" style="width:100%;height:400px;"></div>
 </div>
 <div id="section-column-2" class="section level2">
 <h2>Column</h2>
-<div
-id="section-low-poverty-smaller-black-population-democratic-majority"
-class="section level3">
-<h3>Low Poverty / Smaller Black Population / Democratic Majority</h3>
 <div class="knitr-options" data-fig-width="576" data-fig-height="460">
 
 </div>
-<div class="leaflet html-widget html-widget-output shiny-report-size html-fill-item" id="out2ffe653493d84343" style="width:100%;height:400px;"></div>
+<div id="out46a2c183e3396484" class="shiny-text-output"></div>
+<div class="knitr-options" data-fig-width="576" data-fig-height="460">
+
 </div>
+<div class="leaflet html-widget html-widget-output shiny-report-size html-fill-item" id="out3625b8e5b81927bf" style="width:100%;height:400px;"></div>
 </div>
 
 </div>

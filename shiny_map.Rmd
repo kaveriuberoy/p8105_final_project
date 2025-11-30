@@ -20,19 +20,21 @@ library(sf)
 library(glue)
 library(stringr)
 library(RColorBrewer)
+library(rmapshaper)
 
 options(tigris_use_cache = TRUE)
+options(tigris_class = "sf")
 
 # Load cleaned datasets
 
-covid_demo_final_df <- readRDS("covid_demo_final_df.rds")
-covid_rates         <- readRDS("covid_yearly_rates.rds")
+covid_demo_final_df = readRDS("covid_demo_final_df.rds")
+covid_rates         = readRDS("covid_yearly_rates.rds")
 
 # Fix FIPS formatting
-covid_demo_final_df <- covid_demo_final_df |>
+covid_demo_final_df = covid_demo_final_df |>
   mutate(fips = str_pad(fips, 5, pad = "0"))
 
-covid_rates <- covid_rates |>
+covid_rates = covid_rates |>
   mutate(
     fips = str_pad(as.character(fips), 5, pad = "0"),
     year = as.numeric(year),
@@ -44,17 +46,17 @@ covid_rates <- covid_rates |>
   ) |>
   filter(fips != "000NA", !grepl("^Unknown", county))
   
-nyc_borough_fips <- c("36005", "36047", "36061", "36081", "36085")
+nyc_borough_fips = c("36005", "36047", "36061", "36081", "36085")
 
 nyc_row <- covid_rates |> filter(fips == "36061")
 
 # Duplicate for other boroughs
-nyc_expanded <- lapply(nyc_borough_fips, function(f) {
+nyc_expanded = lapply(nyc_borough_fips, function(f) {
   nyc_row |> mutate(fips = f)
 }) |> bind_rows()
 
 # Remove any other NYC row & replace with 5-borough version
-covid_rates <- covid_rates |>
+covid_rates = covid_rates |>
   filter(!(fips %in% nyc_borough_fips)) |>
   bind_rows(nyc_expanded)
 
@@ -75,45 +77,35 @@ covid_demo_final_df <- covid_demo_final_df |>
     black_prop = race_black_alone_male + race_black_alone_female
   )
 
-# for heat map, updated to remove centroids. 
-
-counties_sf <- counties(cb = TRUE, year = 2020) |> 
+# load, keep only needed cols, then simplify geometry to save memory
+counties_sf_raw = counties(cb = TRUE, year = 2020) |> 
   st_transform(4326) |>
-  mutate(GEOID = str_pad(GEOID, 5, pad = "0"))
+  mutate(GEOID = str_pad(GEOID, 5, pad = "0")) |>
+  dplyr::select(GEOID, NAME, STATEFP, geometry)
+
+# simplifies shapes
+counties_sf = rmapshaper::ms_simplify(          
+  counties_sf_raw,
+  keep = 0.1,   
+  keep_shapes = TRUE
+)
+
+rm(counties_sf_raw)
 
 # Join county shapes with demographics
 
-counties_joined <- counties_sf |>
+counties_joined = counties_sf |>
   left_join(covid_demo_final_df, by = c("GEOID" = "fips"))
 
 # Precompute thresholds 
 
-black_cutoff <- quantile(counties_joined$black_prop, 0.75, na.rm = TRUE)
-mask_cutoff  <- quantile(counties_joined$high_mask_use, 0.75, na.rm = TRUE)
+black_cutoff = quantile(counties_joined$black_prop, 0.75, na.rm = TRUE)
+mask_cutoff  = quantile(counties_joined$high_mask_use, 0.75, na.rm = TRUE)
 
-# global max for heatmap
-
-global_max_cases  <- max(covid_rates$yearly_cases,  na.rm = TRUE)
-global_max_deaths <- max(covid_rates$yearly_deaths, na.rm = TRUE)
-
-# global color palettes for cases & deaths
-
-pal_cases <- colorNumeric(
- palette = brewer.pal(9, "YlGn"), # <--- CHANGED
- domain = covid_rates$yearly_cases,
- na.color = "#f0f0f0"
-)
-
-pal_deaths <- colorNumeric(
- palette = brewer.pal(9, "PuRd"), 
- domain = covid_rates$yearly_deaths,
- na.color = "#f0f0f0"
- )
-
-filtered_data <- reactive({
+filtered_data = reactive({
   
   # Get COVID data for selected year
-  covid_year <- covid_rates |>
+  covid_year = covid_rates |>
     filter(year == input$year) |>
     rename(
       covid_cases  = yearly_cases,
@@ -121,39 +113,35 @@ filtered_data <- reactive({
     )
   
   # Join counties + demographics + covid
-  df <- counties_joined |>
+  df = counties_joined |>
     left_join(covid_year, by = c("GEOID" = "fips"))
   
-  # Pick metric
-  metric_col <- if (input$covid_metric == "cases") "covid_cases" else "covid_deaths"
-  global_max <- if (metric_col == "covid_cases") global_max_cases else global_max_deaths
-  
   # Apply filter for factor type
-  high_df <- low_df <- df
+  high_df = low_df <- df
   
   if (input$compare_type == "poverty") {
-    high_df <- df |> filter(poverty_rate > 15)
-    low_df  <- df |> filter(poverty_rate <= 15)
+    high_df = df |> filter(poverty_rate > 15)
+    low_df  = df |> filter(poverty_rate <= 15)
     
   } else if (input$compare_type == "race_black") {
-    high_df <- df |> filter(black_prop >= black_cutoff)
-    low_df  <- df |> filter(black_prop < black_cutoff)
+    high_df = df |> filter(black_prop >= black_cutoff)
+    low_df  = df |> filter(black_prop < black_cutoff)
     
   } else if (input$compare_type == "party") {
-    maj_col <- if (input$election_year == "2016") "majority_2016" else "majority_2020"
-    high_df <- df |> filter(.data[[maj_col]] == "Republican")
-    low_df  <- df |> filter(.data[[maj_col]] == "Democrat")
+    maj_col = if (input$election_year == "2016") "majority_2016" else "majority_2020"
+    high_df = df |> filter(.data[[maj_col]] == "Republican")
+    low_df  = df |> filter(.data[[maj_col]] == "Democrat")
     
   } else if (input$compare_type == "mask_use") {
-    high_df <- df |> filter(high_mask_use >= mask_cutoff)
-    low_df  <- df |> filter(high_mask_use < mask_cutoff)
+    high_df = df |> filter(high_mask_use >= mask_cutoff)
+    low_df  = df |> filter(high_mask_use < mask_cutoff)
   }
   
   # Return BOTH groups
   list(high = high_df, low = low_df)
 })
 
-format_popup <- function(df, compare_type, year) {
+format_popup = function(df, compare_type, year) {
   df |>
     mutate(
       compare_line = dplyr::case_when(
@@ -251,10 +239,10 @@ renderLeaflet({
   df = filtered_data()$high
   
   # Decide which metric to map based on the button:
-  metric <- if (input$covid_metric == "cases") "covid_cases" else "covid_deaths"
+  metric = if (input$covid_metric == "cases") "covid_cases" else "covid_deaths"
   
   #clean and transform in to LOG10 so colors aren't skewed on map
-  df <- df |>
+  df = df |>
     mutate(
       fill_value_raw = suppressWarnings(as.numeric(.data[[metric]])),
       fill_value     = ifelse(is.na(fill_value_raw), NA_real_, fill_value_raw),
@@ -276,11 +264,11 @@ renderLeaflet({
   if (!is.finite(year_max_raw) || year_max_raw <= 0) year_max_raw <- 1
   
   # Define the domain for colors using this LOG10 year-specific range
-  domain_vals <- log10(c(0, year_max_raw) + 1)
+  domain_vals = log10(c(0, year_max_raw) + 1)
   
   # Set Color palette:
 
-  pal <- colorNumeric(
+  pal = colorNumeric(
     palette = if (metric == "covid_cases") {
       colorRampPalette(brewer.pal(9, "YlGn"))(9)
     } else {
