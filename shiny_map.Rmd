@@ -62,7 +62,7 @@ covid_rates = covid_rates |>
 
 # Add majority party and black population proportion
 
-covid_demo_final_df <- covid_demo_final_df |>
+covid_demo_final_df = covid_demo_final_df |>
   mutate(
     majority_2016 = case_when(
       elections_2016_dem > elections_2016_gop ~ "Democrat",
