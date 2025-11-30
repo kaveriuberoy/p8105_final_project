@@ -17,7 +17,6 @@ warning = FALSE
 ```{r}
 library(tidyverse)
 library(plotly)
-library(RColorBrewer)
 library(viridisLite)
 ```
 
