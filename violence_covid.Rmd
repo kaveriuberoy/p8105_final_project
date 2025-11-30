@@ -13,7 +13,6 @@ warning = FALSE
 )
 ```
 
-
 ![](https://www.fau.edu/newsdesk/images/news/guns-mental-illness-newsdesk.jpg)
 
 # Introduction
