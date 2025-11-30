@@ -10,11 +10,10 @@
 
 
 
-<meta name="date" content="2025-11-26" />
 
 <title>Violence and Covid</title>
 
-<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
@@ -276,178 +275,39 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Violence and Covid</h1>
-<h4 class="date">2025-11-26</h4>
 
 </div>
 
 
-<pre class="r"><code>library(tidyverse)
-library(janitor)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;janitor&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     chisq.test, fisher.test</code></pre>
-<pre class="r"><code>library(lubridate)
-library(tidyr)
-library(broom)
-library(ggplot2)</code></pre>
-<pre class="r"><code>covid_demo_final_df &lt;- readRDS(&quot;covid_demo_final_df.rds&quot;)</code></pre>
-<pre class="r"><code>#Covid+Homicide at County-year level 
-
-covid_homicide_by_year= 
-  covid_demo_final_df |&gt;
-  select(
-  state, county, fips, deaths_homicides,
-  starts_with(&quot;total_cases_&quot;),
-  starts_with(&quot;total_deaths_&quot;)) |&gt;
-
-pivot_longer(
-cols = starts_with(&quot;total_&quot;),
-names_to = &quot;name&quot;,
-values_to = &quot;value&quot;
-) |&gt;
-separate_wider_delim(
-name,
-delim = &quot;_&quot;,
-names = c(&quot;total&quot;, &quot;measure&quot;, &quot;year&quot;)
-) |&gt;
-mutate(
-measure = case_when(
-measure == &quot;cases&quot; ~ &quot;covid_cases&quot;,
-measure == &quot;deaths&quot; ~ &quot;covid_deaths&quot;,
-TRUE ~ measure
-),
-year = as.integer(year)
-) |&gt;
-pivot_wider(
-names_from = measure,
-values_from = value
-) |&gt;
-filter(year %in% 2020:2023) |&gt;
-drop_na(covid_cases, covid_deaths, deaths_homicides)</code></pre>
-<pre class="r"><code>state_lookup= 
-  tibble(
-    state= state.name,
-    state_abbr = state.abb)
-
-covid_homicide_by_year=
-covid_homicide_by_year |&gt;
-left_join(state_lookup, by = &quot;state&quot;)</code></pre>
-<pre class="r"><code>state_year_summary= 
-  covid_homicide_by_year |&gt;
-  group_by(state_abbr, year) |&gt;
-  summarise(
-  total_covid_deaths  = sum(covid_deaths,     na.rm = TRUE),
-  total_covid_cases   = sum(covid_cases,      na.rm = TRUE),
-  total_homicides     = sum(deaths_homicides, na.rm = TRUE),
-  .groups = &quot;drop&quot;)</code></pre>
-<pre class="r"><code>shootings_long= 
-  covid_demo_final_df |&gt;
-  select(
-    county, state, fips,
-    population_2019,
-    health_violent_crime_rate,
-    deaths_homicides,
-    matches(&quot;fatal_police_shootings_total_\\d{4}$&quot;)
-  ) |&gt;
-  pivot_longer(
-    cols = matches(&quot;fatal_police_shootings_total_\\d{4}$&quot;),
-    names_to = &quot;year&quot;,
-    values_to = &quot;fatal_shootings&quot;
-  ) |&gt;
-  mutate(
-    year = str_extract(year, &quot;\\d{4}&quot;),
-    year = as.integer(year)
-  ) |&gt;
-  filter(year %in% 2017:2020)
-
-
-shootings_summary= 
-  shootings_long |&gt;
-  group_by(county, state, fips) |&gt;
-  summarise(
-    total_shootings_2017_2020 = sum(fatal_shootings, na.rm = TRUE),
-    population_2019 = first(population_2019),
-    violent_crime_rate = first(health_violent_crime_rate),
-    deaths_homicides = first(deaths_homicides),
-    .groups = &quot;drop&quot;) |&gt;
-  mutate(
-    shootings_per_100k = (total_shootings_2017_2020 / population_2019) * 1e5,
-    homicides_per_100k = (deaths_homicides / population_2019) * 1e5)</code></pre>
-<pre class="r"><code>#Joining Fatal Shootings to Covid 2020
-
-covid_2020_by_county= 
-  covid_homicide_by_year |&gt;
-  filter(year == 2020) |&gt;
-  select(
-    state, county, fips,
-    covid_cases_2020 = covid_cases,
-    covid_deaths_2020 = covid_deaths)
-
-covid_shootings_2020=
-  shootings_summary |&gt;
-  left_join(
-    covid_2020_by_county,
-    by = c(&quot;state&quot;, &quot;county&quot;, &quot;fips&quot;)
-    ) |&gt;
-  mutate(
-covid_cases_per_100k_2020 = (covid_cases_2020 / population_2019) * 1e5,
-covid_deaths_per_100k_2020 = (covid_deaths_2020 / population_2019) * 1e5
-)
-
-saveRDS(covid_shootings_2020, &quot;covid_shootings_2020.rds&quot;)</code></pre>
-<p>Visualizations</p>
-<pre class="r"><code>#Top 15 Counties Plot 
-top15_shootings_covid= 
-  covid_shootings_2020 |&gt;
-  filter(
-    !is.na(shootings_per_100k),
-    !is.na(covid_deaths_per_100k_2020),
-    total_shootings_2017_2020 &gt; 0
-    ) |&gt;
-  slice_max(shootings_per_100k, n = 15)
-
-ggplot(
-top15_shootings_covid,
-aes(
-x = reorder(paste0(county, &quot;, &quot;, state), shootings_per_100k),
-y = shootings_per_100k,
-fill = covid_deaths_per_100k_2020
-)
-) +
-geom_col() +
-coord_flip() +
-scale_fill_viridis_c(option = &quot;magma&quot;) +
-labs(
-title = &quot;Top 15 Counties by Fatal Police Shootings per 100k (2017–2020)&quot;,
-subtitle = &quot;Bar color indicates COVID-19 deaths per 100k in 2020&quot;,
-x = &quot;County, State&quot;,
-y = &quot;Fatal police shootings per 100,000 residents&quot;,
-fill = &quot;COVID deaths\nper 100k (2020)&quot;
-) +
-theme_minimal()</code></pre>
-<p><img src="violence_covid_files/figure-html/unnamed-chunk-8-1.png" width="672" />
-This plot highlights the 15 counties with the highest fatal police
+<p><img
+src="https://www.fau.edu/newsdesk/images/news/guns-mental-illness-newsdesk.jpg" /></p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The COVID-19 pandemic reshaped nearly every aspect of public
+health—yet one of the most concerning and less discussed trends was the
+simultaneous rise in community violence. According to the Center for
+American Progress, gun violence surged during the pandemic, with
+structural inequities and community-level vulnerabilities playing a
+major role.You can read more about this in their article: <strong><a
+href="https://www.americanprogress.org/article/covid-19s-impact-on-gun-violence-in-america/">“COVID-19’s
+Impact on Gun Violence in America”</a></strong>.</p>
+<p>Motivated by this national pattern, this analysis explores whether
+<strong>homicide rates</strong>, <strong>fatal police
+shootings</strong>, and <strong>overall violent crime rates</strong>
+were related to <strong>COVID-19 cases and deaths</strong> at the U.S.
+county level. By combining county-level violence indicators with
+pandemic outcomes, we aim to understand whether communities already
+burdened by structural violence experienced disproportionately severe
+effects during COVID-19.</p>
+<p>#Visualizations</p>
+<p><img src="violence_covid_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>This plot highlights the 15 counties with the highest fatal police
 shooting rates between 2017 and 2020. The bar height shows shootings per
 100,000 residents, and the fill color shows COVID-19 deaths per 100,000
-in 2020. This lets me visually check whether places with high exposure
-to police violence also experienced high COVID mortality.</p>
-<pre class="r"><code>ggplot(
-  covid_shootings_2020 |&gt;
-    drop_na(shootings_per_100k, covid_deaths_per_100k_2020),
-  aes(x = shootings_per_100k, y = covid_deaths_per_100k_2020)) +
-  geom_point(alpha = 0.4) +
-  geom_smooth(method = &quot;lm&quot;, se = TRUE, color = &quot;black&quot;) +
-  labs(
-    title = &quot;Relationship Between Fatal Police Shootings and COVID-19 Mortality (2020)&quot;,
-    x = &quot;Fatal police shootings per 100,000 (2017–2020)&quot;,
-    y = &quot;COVID-19 deaths per 100,000 (2020)&quot;
-  ) +
-  theme_minimal()</code></pre>
-<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
-<p><img src="violence_covid_files/figure-html/unnamed-chunk-9-1.png" width="672" />
-This scatterplot illustrates the relationship between fatal police
+in 2020. It displace whether places with high exposure to police
+violence also experienced high COVID mortality.</p>
+<p><img src="violence_covid_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>This scatterplot illustrates the relationship between fatal police
 shootings per 100,000 residents (summed from 2017 to 2020) and COVID-19
 deaths per 100,000 in 2020 across U.S. counties. The points represent
 individual counties, and the fitted linear trend line shows that there
@@ -456,150 +316,29 @@ mortality. Most counties cluster near zero fatal shootings, and the
 regression line is nearly flat, suggesting that the level of police
 violence in a county did not meaningfully predict COVID-19 death
 rates.</p>
-<pre class="r"><code>#Regression Models 
-
-analysis_df= 
-  covid_shootings_2020 |&gt;
-  select(
-    shootings_per_100k,
-    homicides_per_100k,
-    violent_crime_rate,
-    covid_deaths_per_100k_2020,
-    covid_cases_per_100k_2020) |&gt;
-  drop_na()
-
-# 1) Crude regression: fatal police shootings and COVID deaths
-model1= 
-  lm(
-  covid_deaths_per_100k_2020 ~ shootings_per_100k,
-  data = analysis_df)
-summary(model1)</code></pre>
+<div id="regression-models" class="section level2">
+<h2>Regression Models</h2>
 <pre><code>## 
 ## Call:
 ## lm(formula = covid_deaths_per_100k_2020 ~ shootings_per_100k, 
 ##     data = analysis_df)
 ## 
 ## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -11029  -6579  -3157   3163  92186 
+##     Min      1Q  Median      3Q     Max 
+## -110.61  -52.55  -13.57   34.22  453.53 
 ## 
 ## Coefficients:
 ##                    Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)        10888.78     268.89  40.495   &lt;2e-16 ***
-## shootings_per_100k    41.62      93.26   0.446    0.655    
+## (Intercept)        107.6355     1.8396  58.510   &lt;2e-16 ***
+## shootings_per_100k   0.3538     0.1595   2.218   0.0267 *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 10570 on 2063 degrees of freedom
-## Multiple R-squared:  9.652e-05,  Adjusted R-squared:  -0.0003882 
-## F-statistic: 0.1991 on 1 and 2063 DF,  p-value: 0.6555</code></pre>
-<pre class="r"><code># 2) Crude regression: violent crime rate and COVID deaths
-model2= 
-  lm(
-  covid_deaths_per_100k_2020 ~ violent_crime_rate,
-  data = analysis_df)
-summary(model2)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = covid_deaths_per_100k_2020 ~ violent_crime_rate, 
-##     data = analysis_df)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -18647  -6120  -2942   2614  91609 
-## 
-## Coefficients:
-##                    Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)        7381.187    401.867   18.37   &lt;2e-16 ***
-## violent_crime_rate   12.224      1.138   10.74   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 10290 on 2063 degrees of freedom
-## Multiple R-squared:  0.05299,    Adjusted R-squared:  0.05253 
-## F-statistic: 115.4 on 1 and 2063 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre class="r"><code># 3) Multiple regression:
-
-model3= 
-  lm(
-  covid_deaths_per_100k_2020 ~ shootings_per_100k + 
-    violent_crime_rate + 
-    homicides_per_100k,
-  data = analysis_df)
-summary(model3)</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = covid_deaths_per_100k_2020 ~ shootings_per_100k + 
-##     violent_crime_rate + homicides_per_100k, data = analysis_df)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -24912  -5737  -2392   2583  87396 
-## 
-## Coefficients:
-##                    Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)        6191.972    412.236  15.020   &lt;2e-16 ***
-## shootings_per_100k -214.984     88.949  -2.417   0.0157 *  
-## violent_crime_rate    3.261      1.317   2.475   0.0134 *  
-## homicides_per_100k  810.014     64.914  12.478   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 9922 on 2061 degrees of freedom
-## Multiple R-squared:  0.1196, Adjusted R-squared:  0.1183 
-## F-statistic: 93.34 on 3 and 2061 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre class="r"><code># Visualization for Model 1
-ggplot(
-  analysis_df,
-  aes(x = shootings_per_100k, y = covid_deaths_per_100k_2020)
-) +
-  geom_point(alpha = 0.4) +
-  geom_smooth(method = &quot;lm&quot;, se = TRUE, color = &quot;blue&quot;) +
-  labs(
-    title = &quot;Model 1: COVID-19 Deaths vs Fatal Police Shootings&quot;,
-    x = &quot;Fatal police shootings per 100k (2017–2020)&quot;,
-    y = &quot;COVID-19 deaths per 100k (2020)&quot;
-  ) +
-  theme_minimal()</code></pre>
-<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
-<p><img src="violence_covid_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
-<pre class="r"><code># Visualization for Model 2
-ggplot(
-  analysis_df,
-  aes(x = violent_crime_rate, y = covid_deaths_per_100k_2020)
-) +
-  geom_point(alpha = 0.4) +
-  geom_smooth(method = &quot;lm&quot;, se = TRUE, color = &quot;darkgreen&quot;) +
-  labs(
-    title = &quot;Model 2: COVID-19 Deaths vs Violent Crime Rate&quot;,
-    x = &quot;Violent crime rate&quot;,
-    y = &quot;COVID-19 deaths per 100k (2020)&quot;
-  ) +
-  theme_minimal()</code></pre>
-<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
-<p><img src="violence_covid_files/figure-html/unnamed-chunk-11-2.png" width="672" /></p>
-<pre class="r"><code>#Visualization for Model 3 
-
-coef_df= tidy(model3)
-
-coef_df= 
-  coef_df |&gt; filter(term != &quot;(Intercept)&quot;)
-
-# Plot coefficients
-ggplot(coef_df, aes(x = term, y = estimate)) +
-  geom_point(size = 3, color = &quot;darkred&quot;) +
-  geom_errorbar(aes(ymin = estimate - std.error,
-                    ymax = estimate + std.error),
-                width = 0.2, color = &quot;black&quot;) +
-  coord_flip() +
-  labs(
-    title = &quot;Multiple Regression Coefficient Plot&quot;,
-    x = &quot;Predictor&quot;,
-    y = &quot;Estimated Effect on COVID-19 Deaths per 100k&quot;
-  ) +
-  theme_minimal()</code></pre>
-<p><img src="violence_covid_files/figure-html/unnamed-chunk-11-3.png" width="672" /></p>
-<p>model 1: This scatterplot explores whether counties with more fatal
+## Residual standard error: 72.31 on 2064 degrees of freedom
+## Multiple R-squared:  0.002377,   Adjusted R-squared:  0.001894 
+## F-statistic: 4.919 on 1 and 2064 DF,  p-value: 0.02668</code></pre>
+<p><img src="violence_covid_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>Model 1: This scatterplot explores whether counties with more fatal
 police shootings also experienced higher COVID-19 mortality in 2020.
 Most counties have zero or very few fatal police shootings per 100k,
 which creates heavy clustering on the left side of the graph. The
@@ -607,18 +346,71 @@ regression line is flat, indicating little to no linear relationship
 between fatal police shootings and COVID-19 death rates. While these
 forms of structural violence may be connected through deeper social
 factors, this crude model does not show a strong direct association.</p>
-<p>model 2: This plot examines whether violent crime rates are
+<pre><code>## 
+## Call:
+## lm(formula = covid_deaths_per_100k_2020 ~ violent_crime_rate, 
+##     data = analysis_df)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -131.52  -49.58  -13.16   32.58  442.97 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)        88.064017   2.765375  31.845   &lt;2e-16 ***
+## violent_crime_rate  0.073989   0.007816   9.467   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 70.88 on 2064 degrees of freedom
+## Multiple R-squared:  0.04161,    Adjusted R-squared:  0.04115 
+## F-statistic: 89.62 on 1 and 2064 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p><img src="violence_covid_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>Model 2: This plot examines whether violent crime rates are
 associated with COVID-19 mortality at the county level. Here, the
 regression line slopes upward, suggesting that counties with higher
 violent crime rates tend to experience higher COVID-19 deaths per 100k.
 Although the relationship is still noisy, the positive trend indicates
 that broader community violence may be linked with higher pandemic
 vulnerability.</p>
-<p>model 3: In multiple regression, homicide rates and violent crime
+<pre><code>## 
+## Call:
+## lm(formula = covid_deaths_per_100k_2020 ~ shootings_per_100k + 
+##     violent_crime_rate + homicides_per_100k, data = analysis_df)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -191.98  -49.00  -12.09   33.72  425.28 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)        79.354083   2.858283  27.763   &lt;2e-16 ***
+## shootings_per_100k -0.037902   0.154306  -0.246   0.8060    
+## violent_crime_rate  0.017735   0.009107   1.947   0.0516 .  
+## homicides_per_100k  4.990649   0.450110  11.088   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 68.85 on 2062 degrees of freedom
+## Multiple R-squared:  0.09643,    Adjusted R-squared:  0.09512 
+## F-statistic: 73.36 on 3 and 2062 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p><img src="violence_covid_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>Model 3: In multiple regression, homicide rates and violent crime
 were strong predictors of COVID-19 mortality, while fatal police
 shootings were not. This suggests that structural violence and long-term
 community disadvantage, rather than isolated rare police encounters,
 were more strongly linked to COVID-19 vulnerability.</p>
+<p>The <a href="violence_covid_corrmatrix.html">Correlation Matrix</a>
+provides a comprehensive view of how each variable in this analysis
+relates to one another-COVID-19 cases and deaths, violent crime rates,
+homicide rates, and fatal police shootings. This allows us to quickly
+identify which forms of violence have the strongest statistical
+associations with COVID-19 outcomes at the county level. By visualizing
+these relationships side-by-side, we can better understand whether
+counties with higher structural violence also experienced
+disproportionate impacts during the pandemic.</p>
+</div>
+</div>
 
 
 
