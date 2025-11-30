@@ -351,7 +351,7 @@ HTML('
 
 <h3>📊 3D Visualization</h3>
 <p>Explore an interactive 3D plot showing how county-level homicide rates, violent crime, and COVID-19 deaths intersect across the U.S.:</p>
-<p><strong><a href="violence_covid_interactiveplot.html">View the interactive 3D visualization →</a></strong></p>
+<p><strong><a href="violence_covid_corrmatrix.html">View the interactive 3D visualization →</a></strong></p>
 
 </div>
 ')
