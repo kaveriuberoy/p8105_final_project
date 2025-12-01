@@ -248,7 +248,7 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="index.html">Final Project Proposal</a>
+  <a href="index.html">Introduction</a>
 </li>
 <li>
   <a href="shiny_map.html">Covid by County: Interactive Map</a>
@@ -256,8 +256,20 @@ $(document).ready(function () {
 <li>
   <a href="Poverty_Race_COVID.html">Poverty and Race</a>
 </li>
-<li>
-  <a href="violence_covid.html">Violence</a>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Violence
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="violence_covid.html">Analysis of Violence and COVID-19</a>
+    </li>
+    <li>
+      <a href="violence_covid_corrmatrix.html">Explore 3D-Plot</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="https://github.com/kaveriuberoy/p8105_final_project">
@@ -283,8 +295,8 @@ $(document).ready(function () {
 src="https://www.fau.edu/newsdesk/images/news/guns-mental-illness-newsdesk.jpg" /></p>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>The COVID-19 pandemic reshaped nearly every aspect of public
-health—yet one of the most concerning and less discussed trends was the
+<p>The COVID-19 pandemic reshaped nearly every aspect of public health.
+Yet one of the most concerning and less discussed trends was the
 simultaneous rise in community violence. According to the Center for
 American Progress, gun violence surged during the pandemic, with
 structural inequities and community-level vulnerabilities playing a
@@ -299,7 +311,9 @@ county level. By combining county-level violence indicators with
 pandemic outcomes, we aim to understand whether communities already
 burdened by structural violence experienced disproportionately severe
 effects during COVID-19.</p>
-<p>#Visualizations</p>
+</div>
+<div id="visualizations" class="section level1">
+<h1>Visualizations</h1>
 <p><img src="violence_covid_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 <p>This plot highlights the 15 counties with the highest fatal police
 shooting rates between 2017 and 2020. The bar height shows shootings per
@@ -316,8 +330,9 @@ mortality. Most counties cluster near zero fatal shootings, and the
 regression line is nearly flat, suggesting that the level of police
 violence in a county did not meaningfully predict COVID-19 death
 rates.</p>
-<div id="regression-models" class="section level2">
-<h2>Regression Models</h2>
+</div>
+<div id="regression-models" class="section level1">
+<h1>Regression Models</h1>
 <pre><code>## 
 ## Call:
 ## lm(formula = covid_deaths_per_100k_2020 ~ shootings_per_100k, 
@@ -338,10 +353,10 @@ rates.</p>
 ## Multiple R-squared:  0.002377,   Adjusted R-squared:  0.001894 
 ## F-statistic: 4.919 on 1 and 2064 DF,  p-value: 0.02668</code></pre>
 <p><img src="violence_covid_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
-<p>Model 1: This scatterplot explores whether counties with more fatal
-police shootings also experienced higher COVID-19 mortality in 2020.
-Most counties have zero or very few fatal police shootings per 100k,
-which creates heavy clustering on the left side of the graph. The
+<p><em>Model 1:</em> This scatterplot explores whether counties with
+more fatal police shootings also experienced higher COVID-19 mortality
+in 2020. Most counties have zero or very few fatal police shootings per
+100k, which creates heavy clustering on the left side of the graph. The
 regression line is flat, indicating little to no linear relationship
 between fatal police shootings and COVID-19 death rates. While these
 forms of structural violence may be connected through deeper social
@@ -366,7 +381,7 @@ factors, this crude model does not show a strong direct association.</p>
 ## Multiple R-squared:  0.04161,    Adjusted R-squared:  0.04115 
 ## F-statistic: 89.62 on 1 and 2064 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p><img src="violence_covid_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
-<p>Model 2: This plot examines whether violent crime rates are
+<p><em>Model 2:</em> This plot examines whether violent crime rates are
 associated with COVID-19 mortality at the county level. Here, the
 regression line slopes upward, suggesting that counties with higher
 violent crime rates tend to experience higher COVID-19 deaths per 100k.
@@ -395,21 +410,25 @@ vulnerability.</p>
 ## Multiple R-squared:  0.09643,    Adjusted R-squared:  0.09512 
 ## F-statistic: 73.36 on 3 and 2062 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p><img src="violence_covid_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
-<p>Model 3: In multiple regression, homicide rates and violent crime
-were strong predictors of COVID-19 mortality, while fatal police
-shootings were not. This suggests that structural violence and long-term
-community disadvantage, rather than isolated rare police encounters,
-were more strongly linked to COVID-19 vulnerability.</p>
-<p>The <a href="violence_covid_corrmatrix.html">Correlation Matrix</a>
-provides a comprehensive view of how each variable in this analysis
-relates to one another-COVID-19 cases and deaths, violent crime rates,
-homicide rates, and fatal police shootings. This allows us to quickly
-identify which forms of violence have the strongest statistical
-associations with COVID-19 outcomes at the county level. By visualizing
-these relationships side-by-side, we can better understand whether
-counties with higher structural violence also experienced
-disproportionate impacts during the pandemic.</p>
+<p><em>Model 3:</em> This figure shows how predicted COVID-19 deaths per
+100,000 change as each violence indicator increases, holding the other
+two measures at their median values. The line for homicides per 100k
+rises steeply, indicating that higher homicide rates are strongly
+associated with higher COVID-19 mortality. The line for violent crime
+rate slopes upward more gently, suggesting a weaker but still positive
+association. In contrast, the line for fatal police shootings per 100k
+is nearly flat, showing that fatal police shootings are not a strong
+predictor of COVID-19 deaths once overall violence levels are taken into
+account.</p>
+
+<div style="background:#f7f7f7; padding:15px; border-radius:6px; margin-top:25px;">
+
+<h3>📊 3D Visualization</h3>
+<p>Explore an interactive 3D plot showing how county-level homicide rates, violent crime, and COVID-19 deaths intersect across the U.S.:</p>
+<p><strong><a href="violence_covid_corrmatrix.html">View the interactive 3D visualization →</a></strong></p>
+
 </div>
+
 </div>
 
 
