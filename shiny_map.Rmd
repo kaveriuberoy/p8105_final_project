@@ -147,7 +147,7 @@ format_popup = function(df, compare_type, year) {
       compare_line = dplyr::case_when(
           compare_type == "poverty" ~ glue("Poverty rate: {round(poverty_rate, 1)}%"),
           compare_type == "race_black" ~ glue("Black population share: {round(black_prop, 3)}"),
-          compare_type == "mask_use"   ~ glue("Mask usage: {round(high_mask_use, 1)}%"),
+          compare_type == "mask_use"   ~ glue("Mask usage: {round(high_mask_use * 100, 1)}%"),
           compare_type == "party"       ~ "Political party comparison",  # optional, just a label
           TRUE ~ ""
       ),
