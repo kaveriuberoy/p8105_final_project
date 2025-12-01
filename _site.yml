@@ -10,6 +10,10 @@ navbar:
     - text: "Poverty and Race"
       href: Poverty_Race_COVID.html
     - text: "Violence"
-      href: violence_covid.html
+      menu:
+        - text: "Analysis of Violence and COVID-19"
+          href: violence_covid.html
+        - text: "Explore 3D-Plot"
+          href: violence_covid_corrmatrix.html
     - icon: fa-github fa-lg
       href: https://github.com/kaveriuberoy/p8105_final_project
