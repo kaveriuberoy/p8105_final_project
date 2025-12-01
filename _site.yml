@@ -3,7 +3,7 @@ output_dir: "."
 navbar:
   title: "Mapping the Pandemic Landscape"
   right:
-    - text: "Final Project Proposal"
+    - text: "Introduction"
       href: index.html
     - text: "Covid by County: Interactive Map"
       href: shiny_map.html 
