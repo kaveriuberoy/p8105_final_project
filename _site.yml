@@ -13,7 +13,7 @@ navbar:
     - text: "Covid by County: Interactive Map"
       menu:
       - text: "Interactive Map"
-        href: shiny_map.html 
+        href: https://ekennedycu.shinyapps.io/shiny_map/ 
       - text: "Map Analysis"
         href: Shiny_map_analysis.html
     - text: "Poverty and Race"
