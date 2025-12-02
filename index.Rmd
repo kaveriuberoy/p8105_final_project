@@ -4,6 +4,14 @@ author: "Evan Kennedy elk2149, Amrutha Banda ab6169, Kaveri Uberoy kiu2103, Suhi
 output: html_document
 ---
 
+```{r echo= FALSE}
+knitr::opts_chunk$set(
+echo = FALSE,
+message = FALSE,
+warning = FALSE
+)
+```
+
 ![](https://www.whitehousetx.org/ImageRepository/Document?documentId=480)
 
 ### Motivation:
@@ -27,8 +35,42 @@ An interactive U.S. map displaying case and death rates alongside socioeconomic 
 ### Anticipated Challenges
 Harmonizing datasets, creating mapped visuals, dealing with co-linearity between factors, managing time lag in correlation with covid incidence.
 
-To see an interactive map of covid cases and deaths across the county click [here](https://ekennedycu.shinyapps.io/shiny_map/).
+```{r}
 
-To see an analysis of COIVD 19 and Violence click [here](violence_covid.html)
+library(htmltools)
 
-To see to see an analysis of COVID 19, poverty and race click [here](Poverty_Race_COVID.html)
+HTML('
+<div style="background:#f7f7f7; padding:15px; border-radius:6px; margin-top:25px;">
+
+<h3>Interactive Case/Death Map</h3>
+<p>See an interactive map of covid cases and deaths across the county:</p>
+<p><strong><a href=https://ekennedycu.shinyapps.io/shiny_map/>View→</a></strong></p>
+
+</div>
+')
+```
+
+```{r}
+HTML('
+<div style="background:#f7f7f7; padding:15px; border-radius:6px; margin-top:25px;">
+
+  <h3>Covid-19 and Violence</h3>
+  <p>See an investigation of Covid-19 and the incidence of violence:</p>
+  <p><strong><a href="violence_covid.html">View Analysis →</a></strong></p>
+
+</div>
+')
+```
+
+```{r}
+HTML('
+<div style="background:#f7f7f7; padding:15px; border-radius:6px; margin-top:25px;">
+
+  <h3>Covid, Poverty, and Race</h3>
+  <p>See an investigation of Covid-19, poverty, and race:</p>
+  <p><strong><a href="Poverty_Race_COVID_final.html">View Analysis →</a></strong></p>
+
+</div>
+')
+
+```

@@ -17,7 +17,7 @@ navbar:
       - text: "Map Analysis"
         href: Shiny_map_analysis.html
     - text: "Poverty and Race"
-      href: Poverty_Race_COVID.html
+      href: Poverty_Race_COVID_final.html
     - text: "Violence"
       menu:
         - text: "Analysis of Violence and COVID-19"
