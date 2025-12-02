@@ -1,7 +1,9 @@
 ---
-title: "Shiny_map_analysis"
-output: html_document
-date: "2025-12-02"
+title: "Shiny Map Analysis"
+output: 
+  html_document:
+    theme: cosmo
+  
 ---
 
 ### Motivation, Related Works, and Initial Questions. 
