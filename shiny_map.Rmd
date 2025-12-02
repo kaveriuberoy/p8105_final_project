@@ -112,9 +112,19 @@ filtered_data = reactive({
       covid_deaths = yearly_deaths
     )
   
+
   # Join counties + demographics + covid
+  
   df = counties_joined |>
-    left_join(covid_year, by = c("GEOID" = "fips"))
+  left_join(covid_year, by = c("GEOID" = "fips")) |>
+  mutate(
+    covid_ratio = ifelse(
+      covid_cases > 0,
+      covid_deaths / covid_cases,
+      NA_real_
+    )
+  )
+
   
   # Apply filter for factor type
   high_df = low_df <- df
@@ -205,7 +215,11 @@ sliderInput(
 radioButtons(
   inputId = "covid_metric",
   label   = "COVID Metric:",
-  choices = c("Cases" = "cases", "Deaths" = "deaths"),
+  choices = c(
+    "Cases"  = "cases",
+    "Deaths" = "deaths",
+    "Deaths / Cases (Severity)" = "ratio"
+  ),
   selected = "cases"
 )
 
@@ -239,7 +253,11 @@ renderLeaflet({
   df = filtered_data()$high
   
   # Decide which metric to map based on the button:
-  metric = if (input$covid_metric == "cases") "covid_cases" else "covid_deaths"
+  metric = dplyr::case_when(
+    input$covid_metric == "cases"  ~ "covid_cases",
+    input$covid_metric == "deaths" ~ "covid_deaths",
+    input$covid_metric == "ratio"  ~ "covid_ratio"
+  )
   
   #clean and transform in to LOG10 so colors aren't skewed on map
   df = df |>
@@ -250,7 +268,9 @@ renderLeaflet({
     )
   
     # Create color ranges that are applicable to each map
-  if (metric == "covid_cases") {
+  if (metric == "covid_ratio") {
+    year_max_raw <- max(df$covid_ratio, na.rm = TRUE)
+  } else if (metric == "covid_cases") {
     year_max_raw <- max(
       covid_rates$yearly_cases[covid_rates$year == input$year],
       na.rm = TRUE
@@ -270,10 +290,12 @@ renderLeaflet({
 
   pal = colorNumeric(
     palette = if (metric == "covid_cases") {
-      colorRampPalette(brewer.pal(9, "YlGn"))(9)
-    } else {
-      colorRampPalette(brewer.pal(9, "PuRd"))(9)
-    },
+        colorRampPalette(brewer.pal(9, "YlGn"))(9)
+      } else if (metric == "covid_deaths") {
+        colorRampPalette(brewer.pal(9, "PuRd"))(9)
+      } else {    # <-- for severity ratio
+        colorRampPalette(brewer.pal(9, "YlOrRd"))(9)
+      },
     domain   = domain_vals,
     na.color = "#f0f0f0"
   )
@@ -322,7 +344,12 @@ renderLeaflet({
   df = filtered_data()$low
   
   # Same metric selection logic as the high map
-  metric = if (input$covid_metric == "cases") "covid_cases" else "covid_deaths"
+  metric = dplyr::case_when(
+      input$covid_metric == "cases"  ~ "covid_cases",
+      input$covid_metric == "deaths" ~ "covid_deaths",
+      input$covid_metric == "ratio"  ~ "covid_ratio"
+    )
+  
   
   # Clean + transform the selected metric into Log10:
   df <- df |>
@@ -333,7 +360,9 @@ renderLeaflet({
     )
   
   # Create legend ranges that are applicable to each map
-  if (metric == "covid_cases") {
+  if (metric == "covid_ratio") {
+    year_max_raw <- max(df$covid_ratio, na.rm = TRUE)
+  } else if (metric == "covid_cases") {
     year_max_raw <- max(
       covid_rates$yearly_cases[covid_rates$year == input$year],
       na.rm = TRUE
@@ -349,12 +378,14 @@ renderLeaflet({
   # Log-scale domain for the palette (same as in the high map)
   domain_vals <- log10(c(0, year_max_raw) + 1)
   
-  pal <- colorNumeric(
+  pal = colorNumeric(
     palette = if (metric == "covid_cases") {
-      colorRampPalette(brewer.pal(9, "YlGn"))(9)
-    } else {
-      colorRampPalette(brewer.pal(9, "PuRd"))(9)
-    },
+        colorRampPalette(brewer.pal(9, "YlGn"))(9)
+      } else if (metric == "covid_deaths") {
+        colorRampPalette(brewer.pal(9, "PuRd"))(9)
+      } else {    # <-- for severity ratio
+        colorRampPalette(brewer.pal(9, "YlOrRd"))(9)
+      },
     domain   = domain_vals,
     na.color = "#f0f0f0"
   )
@@ -382,14 +413,22 @@ renderLeaflet({
         breaks_log <- seq(min_log, max_log, length.out = 5)
         pal(breaks_log)
       },
+      # fixing labels log as ratio makes the numbers too small. 
       labels = {
-        min_log    <- domain_vals[1]
-        max_log    <- domain_vals[2]
-        breaks_log <- seq(min_log, max_log, length.out = 5)
+        breaks_log <- seq(domain_vals[1], domain_vals[2], length.out = 5)
         breaks_raw <- 10^breaks_log - 1
-        scales::comma(round(breaks_raw))
+        
+        if (metric == "covid_ratio") {
+          sprintf("%.4f", breaks_raw)   # 4 decimal places
+        } else {
+          scales::comma(round(breaks_raw))  # keep deahts as before
+        }
       },
-      title   = if (metric == "covid_cases") "COVID Cases (Log10)" else "COVID Deaths (Log10)",
+      title = dplyr::case_when(
+        metric == "covid_cases"  ~ "COVID Cases (Log10)",
+        metric == "covid_deaths" ~ "COVID Deaths (Log10)",
+        metric == "covid_ratio"  ~ "Deaths ÷ Cases"
+      ),
       opacity = 0.8
     )
 })
