@@ -36,7 +36,6 @@ An interactive U.S. map displaying case and death rates alongside socioeconomic 
 Harmonizing datasets, creating mapped visuals, dealing with co-linearity between factors, managing time lag in correlation with covid incidence.
 
 ```{r}
-
 library(htmltools)
 
 HTML('
@@ -72,5 +71,4 @@ HTML('
 
 </div>
 ')
-
 ```
