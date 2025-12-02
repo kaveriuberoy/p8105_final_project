@@ -603,6 +603,222 @@ padding-top: 0px;
 
 <h1 id="data-cleaning">Data Cleaning</h1>
 <p>2025-11-16</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(tidycensus)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co"># all demographic data. currently selecting for name, fips, lat and long, race, population 2019, deaths by homicide, life expectancy, fatal police shootings 2017,2018,2019, 2020, average income, dem/gop for 2016, 2020, poverty rate, children in poverty, 80th and 20th percentile incomes, violent crime rate. This one contains everything. I&#39;ve divided them into subcategories, so that if someone wants to use them for a particular analysis, they can select from it easily to create some mini dfs. </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co"># made lots of changes to naming within the df so it could be easily joined with nyt data. </span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>counties_demo_df <span class="ot">=</span> </span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="at">file =</span> <span class="st">&quot;./data/counties.csv&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="fu">select</span>(name, fips, state, longitude_deg, latitude_deg, </span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>         <span class="co"># race for each county </span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>         race_non_hispanic_white_alone_male,race_non_hispanic_white_alone_female,</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>         race_black_alone_male,race_black_alone_female,</span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>         race_asian_alone_male,race_asian_alone_female,</span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>         race_hispanic_male, race_hispanic_female,</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>         <span class="co"># overall population</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>         population_2019,</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>         <span class="co"># firearm and police shooting info</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>         deaths_firearm_suicides,deaths_homicides, </span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>         fatal_police_shootings_total_2017, </span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>         fatal_police_shootings_unarmed_2017, fatal_police_shootings_firearmed_2017, </span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>         fatal_police_shootings_total_2018, </span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>         fatal_police_shootings_unarmed_2018, fatal_police_shootings_firearmed_2018, </span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>         fatal_police_shootings_total_2019, </span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>         fatal_police_shootings_unarmed_2017, fatal_police_shootings_firearmed_2019, </span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>         fatal_police_shootings_total_2020, </span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a>         fatal_police_shootings_unarmed_2017, fatal_police_shootings_firearmed_2020, </span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>         police_deaths,</span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>         health_violent_crime_rate,</span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a>         <span class="co"># income/ poverty related </span></span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a>         avg_income, </span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a>         poverty_rate,</span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a>         health_percent_children_in_poverty,</span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a>         health_80th_percentile_income, </span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a>         health_20th_percentile_income, </span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a>         <span class="co"># elections</span></span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a>         elections_2016_total, elections_2016_dem, elections_2016_gop,</span>
+<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a>         elections_2020_total, elections_2020_dem, elections_2020_gop,</span>
+<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a>         <span class="co"># general health</span></span>
+<span id="cb1-45"><a href="#cb1-45" tabindex="-1"></a>         life_expectancy, </span>
+<span id="cb1-46"><a href="#cb1-46" tabindex="-1"></a>         health_percent_smokers</span>
+<span id="cb1-47"><a href="#cb1-47" tabindex="-1"></a>         ) <span class="sc">|&gt;</span></span>
+<span id="cb1-48"><a href="#cb1-48" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">county =</span> name) <span class="sc">|&gt;</span></span>
+<span id="cb1-49"><a href="#cb1-49" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-50"><a href="#cb1-50" tabindex="-1"></a>    <span class="at">county =</span> <span class="fu">sub</span>(<span class="st">&quot; county&quot;</span>, <span class="st">&quot;&quot;</span>, county, <span class="at">fixed =</span> <span class="cn">TRUE</span>), </span>
+<span id="cb1-51"><a href="#cb1-51" tabindex="-1"></a>    <span class="at">county =</span> <span class="fu">sub</span>(<span class="st">&quot; parish&quot;</span>, <span class="st">&quot;&quot;</span>, county, <span class="at">fixed =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-52"><a href="#cb1-52" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb1-53"><a href="#cb1-53" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">state =</span> state.name[ <span class="fu">match</span>(state, state.abb) ])</span></code></pre></div>
+<pre><code>## Rows: 3142 Columns: 237
+## ── Column specification ─────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr   (4): name, fips, state, zip-codes
+## dbl (233): land_area (km^2), area (km^2), longitude (deg), latitude (deg), n...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># nyt covid data per year, with all the info in them. </span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>covid_2020 <span class="ot">&lt;-</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">&quot;./data/us-counties-2020.csv&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="dv">2020</span>)</span></code></pre></div>
+<pre><code>## Rows: 884737 Columns: 6
+## ── Column specification ─────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (3): county, state, fips
+## dbl  (2): cases, deaths
+## date (1): date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>covid_2021 <span class="ot">&lt;-</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">&quot;./data/us-counties-2021.csv&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="dv">2021</span>)</span></code></pre></div>
+<pre><code>## Rows: 1185373 Columns: 6
+## ── Column specification ─────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (3): county, state, fips
+## dbl  (2): cases, deaths
+## date (1): date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>covid_2022 <span class="ot">&lt;-</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">&quot;./data/us-counties-2022.csv&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="dv">2022</span>)</span></code></pre></div>
+<pre><code>## Rows: 1188042 Columns: 6
+## ── Column specification ─────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (3): county, state, fips
+## dbl  (2): cases, deaths
+## date (1): date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>covid_2023 <span class="ot">&lt;-</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="st">&quot;./data/us-counties-2023.csv&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="dv">2023</span>)</span></code></pre></div>
+<pre><code>## Rows: 267009 Columns: 6
+## ── Column specification ─────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (3): county, state, fips
+## dbl  (2): cases, deaths
+## date (1): date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>covid_all <span class="ot">&lt;-</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="fu">bind_rows</span>(covid_2020, covid_2021, covid_2022, covid_2023) <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>    <span class="at">date  =</span> <span class="fu">as.Date</span>(date),</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>    <span class="at">fips  =</span> fips <span class="sc">|&gt;</span> <span class="fu">as.character</span>() <span class="sc">|&gt;</span> <span class="fu">str_pad</span>(<span class="dv">5</span>, <span class="at">pad =</span> <span class="st">&quot;0&quot;</span>),</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>    <span class="at">cases =</span> cases <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>(),</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>    <span class="at">deaths =</span> deaths <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>()</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  )</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co"># nyt masking data, all from july 2020, peak covid, from survey data as well. Divided into high mask use and low mask use columns for simplicity. </span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>covid_masking_df <span class="ot">=</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>  <span class="fu">read_csv</span>(<span class="at">file =</span> <span class="st">&quot;./data/mask-use-by-county.csv&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>    <span class="at">COUNTYFP =</span> <span class="fu">sprintf</span>(<span class="st">&quot;%05d&quot;</span>, <span class="fu">as.numeric</span>(COUNTYFP)),</span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>    <span class="at">high_mask_use =</span> FREQUENTLY <span class="sc">+</span> ALWAYS,</span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>    <span class="at">low_mask_use  =</span> NEVER <span class="sc">+</span> RARELY <span class="sc">+</span> SOMETIMES</span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>  )</span></code></pre></div>
+<pre><code>## Rows: 3142 Columns: 6
+## ── Column specification ─────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (1): COUNTYFP
+## dbl (5): NEVER, RARELY, SOMETIMES, FREQUENTLY, ALWAYS
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># covid data joined with counties demographic data. </span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co"># some things counties_demo_df data treats as counties, such as boroughs in nyc and alaska boroughs, not in the nyt data. So just matched whatever we could for now. We can discuss how we want to handle this later. </span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>covid_all_clean <span class="ot">&lt;-</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  covid_all <span class="sc">|&gt;</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="fu">arrange</span>(fips, date) <span class="sc">|&gt;</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  <span class="fu">group_by</span>(fips, county, state) <span class="sc">|&gt;</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>    <span class="at">cases_cum_fixed  =</span> <span class="fu">cummax</span>(<span class="fu">replace_na</span>(cases, <span class="dv">0</span>)),</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>    <span class="at">deaths_cum_fixed =</span> <span class="fu">cummax</span>(<span class="fu">replace_na</span>(deaths, <span class="dv">0</span>)),</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">year</span>(date)</span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co"># finding the cumulative end of year counts</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a>covid_eoy <span class="ot">&lt;-</span> covid_all_clean <span class="sc">|&gt;</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a>  <span class="fu">group_by</span>(fips, county, state, year) <span class="sc">|&gt;</span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a>    <span class="at">cases_eoy  =</span> <span class="fu">max</span>(cases_cum_fixed,  <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a>    <span class="at">deaths_eoy =</span> <span class="fu">max</span>(deaths_cum_fixed, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a>    <span class="at">.groups    =</span> <span class="st">&quot;drop&quot;</span></span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a>  )</span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a></span>
+<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a><span class="co"># subtracting end of year counts to find yearly cases and deaths</span></span>
+<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a>covid_yearly_counts <span class="ot">&lt;-</span> covid_eoy <span class="sc">|&gt;</span></span>
+<span id="cb13-26"><a href="#cb13-26" tabindex="-1"></a>  <span class="fu">arrange</span>(fips, year) <span class="sc">|&gt;</span></span>
+<span id="cb13-27"><a href="#cb13-27" tabindex="-1"></a>  <span class="fu">group_by</span>(fips, county, state) <span class="sc">|&gt;</span></span>
+<span id="cb13-28"><a href="#cb13-28" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-29"><a href="#cb13-29" tabindex="-1"></a>    <span class="at">yearly_cases  =</span> cases_eoy  <span class="sc">-</span> <span class="fu">lag</span>(cases_eoy,  <span class="at">default =</span> <span class="dv">0</span>),</span>
+<span id="cb13-30"><a href="#cb13-30" tabindex="-1"></a>    <span class="at">yearly_deaths =</span> deaths_eoy <span class="sc">-</span> <span class="fu">lag</span>(deaths_eoy, <span class="at">default =</span> <span class="dv">0</span>)</span>
+<span id="cb13-31"><a href="#cb13-31" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb13-32"><a href="#cb13-32" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb13-33"><a href="#cb13-33" tabindex="-1"></a></span>
+<span id="cb13-34"><a href="#cb13-34" tabindex="-1"></a><span class="co">#using tidy census to calculate per/100000 rates</span></span>
+<span id="cb13-35"><a href="#cb13-35" tabindex="-1"></a><span class="co">#pulling population from tidy census</span></span>
+<span id="cb13-36"><a href="#cb13-36" tabindex="-1"></a></span>
+<span id="cb13-37"><a href="#cb13-37" tabindex="-1"></a>pop_df <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(</span>
+<span id="cb13-38"><a href="#cb13-38" tabindex="-1"></a>  <span class="at">geography =</span> <span class="st">&quot;county&quot;</span>,</span>
+<span id="cb13-39"><a href="#cb13-39" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">&quot;B01003_001&quot;</span>,</span>
+<span id="cb13-40"><a href="#cb13-40" tabindex="-1"></a>  <span class="at">year =</span> <span class="dv">2020</span>,        </span>
+<span id="cb13-41"><a href="#cb13-41" tabindex="-1"></a>  <span class="at">survey =</span> <span class="st">&quot;acs5&quot;</span>,</span>
+<span id="cb13-42"><a href="#cb13-42" tabindex="-1"></a>  <span class="at">geometry =</span> <span class="cn">FALSE</span></span>
+<span id="cb13-43"><a href="#cb13-43" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb13-44"><a href="#cb13-44" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb13-45"><a href="#cb13-45" tabindex="-1"></a>    <span class="at">fips =</span> GEOID,</span>
+<span id="cb13-46"><a href="#cb13-46" tabindex="-1"></a>    <span class="at">population =</span> estimate</span>
+<span id="cb13-47"><a href="#cb13-47" tabindex="-1"></a>  )</span></code></pre></div>
+<pre><code>## Getting data from the 2016-2020 5-year ACS</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co">#joining with yearly counts</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>covid_rates <span class="ot">&lt;-</span> covid_yearly_counts <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>  <span class="fu">left_join</span>(pop_df, <span class="at">by =</span> <span class="st">&quot;fips&quot;</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#doing the math to calcuate rates</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>covid_rates <span class="ot">&lt;-</span> covid_rates <span class="sc">|&gt;</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>    <span class="at">cases_per_100k  =</span> (yearly_cases  <span class="sc">/</span> population) <span class="sc">*</span> <span class="dv">100000</span>,</span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>    <span class="at">deaths_per_100k =</span> (yearly_deaths <span class="sc">/</span> population) <span class="sc">*</span> <span class="dv">100000</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>  )</span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a><span class="co"># combining demographic data with covid yearly data </span></span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>covid_demo_final_df <span class="ot">&lt;-</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a>  counties_demo_df <span class="sc">|&gt;</span></span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a>    covid_yearly_counts <span class="sc">|&gt;</span> <span class="fu">select</span>(fips, year, yearly_cases, yearly_deaths),</span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">&quot;fips&quot;</span></span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a>    covid_masking_df <span class="sc">|&gt;</span> <span class="fu">select</span>(COUNTYFP, high_mask_use, low_mask_use),</span>
+<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;fips&quot;</span> <span class="ot">=</span> <span class="st">&quot;COUNTYFP&quot;</span>)</span>
+<span id="cb15-24"><a href="#cb15-24" tabindex="-1"></a>  )</span>
+<span id="cb15-25"><a href="#cb15-25" tabindex="-1"></a></span>
+<span id="cb15-26"><a href="#cb15-26" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" tabindex="-1"></a><span class="fu">saveRDS</span>(covid_rates, <span class="st">&quot;covid_yearly_rates.rds&quot;</span>)</span>
+<span id="cb15-28"><a href="#cb15-28" tabindex="-1"></a><span class="fu">saveRDS</span>(covid_demo_final_df, <span class="st">&quot;covid_demo_final_df.rds&quot;</span>)</span></code></pre></div>
 
 </body>
 </html>

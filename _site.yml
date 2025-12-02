@@ -1,5 +1,10 @@
 name: "Mapping the Pandemic Landscape"
 output_dir: "docs"
+
+output:
+  html_document:
+    theme: cosmo
+
 navbar:
   title: "Mapping the Pandemic Landscape"
   right:

@@ -1,8 +1,6 @@
 ---
 title: "Interactive 3D Plot"
-output: 
-  html_document:
-    theme: cosmo
+output: html_document
 ---
 
 ```{r echo= FALSE}

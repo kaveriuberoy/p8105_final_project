@@ -1,9 +1,7 @@
 ---
 title: "Mapping the Pandemic Landscape"
 author: "Evan Kennedy elk2149, Amrutha Banda ab6169, Kaveri Uberoy kiu2103, Suhina Sharma ss7636"
-output: 
-  html_document:
-    theme: cosmo
+output: html_document
 ---
 
 ![](https://www.whitehousetx.org/ImageRepository/Document?documentId=480)
