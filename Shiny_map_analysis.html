@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2025-12-02" />
+
+<title>Shiny_map_analysis</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Mapping the Pandemic Landscape</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="index.html">Introduction</a>
+</li>
+<li>
+  <a href="shiny_map.html">Covid by County: Interactive Map</a>
+</li>
+<li>
+  <a href="Poverty_Race_COVID.html">Poverty and Race</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Violence
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="violence_covid.html">Analysis of Violence and COVID-19</a>
+    </li>
+    <li>
+      <a href="violence_covid_corrmatrix.html">Explore 3D-Plot</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="https://github.com/kaveriuberoy/p8105_final_project">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Shiny_map_analysis</h1>
+<h4 class="date">2025-12-02</h4>
+
+</div>
+
+
+<div id="motivation-related-works-and-initial-questions."
+class="section level3">
+<h3>Motivation, Related Works, and Initial Questions.</h3>
+<p>The Covid-19 pandemic affected communities across the United States
+in highly uneven ways. While the virus itself spreads biologically, the
+outcomes in terms of cases and deaths were strongly shaped by social,
+economic, and structural factors. This map aims to investigate these
+disparities by allowing us to visualize county-level Covid-19 cases and
+deaths alongside key contextual variables such as race, poverty,
+political affiliation, and mask usage. By visualizing and analyzing
+these relationships, we hoped to gain insight into the social
+determinants of health that influenced pandemic outcomes, and to
+understand how they might have contributed to the severity of the
+pandemic in different regions.</br></p>
+<p>In particular, we were inspired by research highlighting racial
+disparities in Covid-19 outcomes, including “Hospitalization and
+Mortality among Black Patients and White Patients with Covid-19”,
+Price-Haywood et al. (2020) and “Racial Health Disparities and Covid-19
+- Caution and Context”, Chowkwanyun &amp; Reed (2020), which we learned
+about in our introduction to public health course, which explore how
+systemic factors like healthcare access and ‘weathering’ impact disease
+severity among Black Americans. These papers highlighted how, due to
+systemic biases, black people are more likely to have their health
+concerns dismissed or not sufficiently addressed as compared to white
+people, and do not receive the same level of care overall, and therefore
+are more likely to experience severe cases of Covid. While we were
+initially interested in racial disparities, we expanded our inquiry to
+include additional county-level factors such as poverty, political
+affiliation, and mask use. In class exercises like mapping datasets such
+as Airbnb listings and exploring Shiny apps inspired our approach to
+interactive county-level visualization. For the map, we used public
+datasets from The New York Times (COVID-19 cases and deaths) and a
+public dataset that compiled Census/ACS demographic data, which allowed
+us to link health outcomes with socioeconomic and political variables.
+Our work aims to combine public health, demographic, and political data
+into a unified, interactive visualization framework. </br></p>
+<p>We began the project seeking to answer : how did Covid-19 cases and
+deaths vary geographically at the county level across the U.S.? Were
+there patterns related to racial composition, poverty, political
+affiliation, or mask usage? Could we visualize these patterns in an
+interactive, comparative format? As our analysis progressed, additional
+questions emerged: How did temporal trends in Covid-19 outcomes interact
+with social and political factors across multiple years? Were counties
+with higher proportions of Black residents, higher poverty, or different
+political affiliations disproportionately affected in terms of cases or
+deaths? How did mask usage correlate with disease spread in the context
+of other county-level variables?</br></p>
+</div>
+<div id="data-selection-and-cleaning." class="section level3">
+<h3>Data: selection and cleaning.</h3>
+<p>Our data came mainly from 6 datasets for the shiny map: COVID-19
+data, one data set for each year from the New York Times county-level
+datasets (2020–2023) with per day cases and deaths, as well as a mask
+use dataset which came from survey data from July 2020. Demographic,
+socioeconomic, and political data data came from one public dataset
+which compiled information from ACS and census sources, including race,
+income, and poverty.</br></p>
+<p>Data cleaning involved harmonizing county names and FIPS codes across
+datasets, calculating cumulative and yearly Covid-19 cases and deaths,
+computing per-100,000 population rates, merging demographic, political,
+and health data with COVID-19 outcomes, and preparing mask usage and
+other behavioral variables for comparison. We initially struggled
+because some ‘counties’ in the demographic dataset we had were not
+considered counties by the NYT data, such as census areas in Alaska and
+boroughs of NYC. Another issue we came across was that we could not
+cleanly add up all the covid data, because it was already cumulative in
+some senses, so we needed to adjust how we dealt with these different
+situations. We set some boundaries semi-arbitrarily for comparing
+different high factor and low factor groups; for race, we selected the
+populations where the proportion of black population was above the 75th
+quantile across all counties as ‘High proportion of black population’,
+as for masking as well, but for poverty, we used 15% as the cut off for
+high poverty rate, although 20% is how it is defined by the USDA, to
+give us a more extensive, clean visual.</p>
+</div>
+<div id="exploratory-analysis" class="section level3">
+<h3>Exploratory Analysis</h3>
+<p>We made the interactive shiny map to allow users to: compare two
+groups (e.g., high vs low poverty, Republican vs Democrat counties, high
+vs low mask usage), select Covid-19 metric (cases , deaths, or covid
+ratio, ie deaths per cases, an indicator of severity) and year
+(2020–2023) to visualize case or death counts per county and explore
+demographic and political covariates directly via pop-ups and filtering
+on the map. We wanted this map to be able to look at the geographic
+spread of cases and deaths linked with various different factors, to
+view alongside our statistical analyses of poverty and race to Covid-19,
+and also to look at other factors that might be relevant to disease
+spread and severity, such as mask usage and political majority per
+county. We decided to show two maps side by side, so it was easier to
+see the differences in spread depending on the exposure of choice (a
+high and low poverty map, high and low black proportion of the
+population, republican vs democrat, high vs low mask usage).</p>
+</div>
+<div id="additional-analysis" class="section level3">
+<h3>Additional analysis</h3>
+<p>There were some initial issues with the map, such as the way the heat
+map colors the spread of covid, since many counties were pretty similar
+when viewed in the lens of larger scales. We ended up using a
+logarithmic transformation to make the spread differences more dramatic/
+visible when it came to the heat map. Also, the covid severity metric
+was an important addition because the covid cases and deaths on their
+own were pretty variable and widespread, but once we mapped by deaths
+per case, then it was a lot more apparent how different socioeconomic
+exposures impacted covid severity. We decided against using per capita
+values for cases and deaths, so the map could also show how case and
+death counts were concentrated around city areas/ generally spread
+geographically, but the covid severity metric acted as a useful way to
+standardize severity to view the impact of covid on each county. Also,
+our page was initially extremely slow and crashed when trying to launch
+the app on a browser because we had to map each county as a polygon onto
+the map, which involved generating over 3000 polygons and a pop up for
+each county, so we used the mapshaper tool to speed it up, which helped
+a lot.</p>
+</div>
+<div id="findings-from-the-map" class="section level3">
+<h3>Findings from the map</h3>
+<p>Across all four years of available data 2020 2023, several clear
+geographic patterns emerged from the interactive Shiny map. Covid 19
+cases and deaths were heavily concentrated in and around major
+metropolitan areas, particularly during the first two years of the
+pandemic. Counties containing or adjacent to large cities especially in
+the Northeast, Midwest, and parts of the South displayed the highest
+counts. This pattern largely reflects population density: areas with
+more residents simply had more opportunities for transmission, and
+therefore accumulated more reported cases and deaths. At the same time,
+Covid 19 was geographically widespread, and most counties across the
+United States rural and urban alike ultimately experienced substantial
+case and death burdens by the end of 2021, illustrating how the virus
+reached every part of the country regardless of county level demographic
+or political characteristics. </br></p>
+<p>However, the most meaningful differences emerged not from the raw
+case or death counts but from the Covid severity metric deaths per case.
+Mapping severity revealed disparities that were less visible in simple
+counts. Counties with a higher proportion of Black residents
+consistently showed darker severity shading, particularly in 2020 and
+2021, indicating higher death to case ratios. This pattern parallels
+prior research showing that structural factors such as differential
+access to healthcare, occupational exposure, and chronic stress
+weathering contributed to disproportionate pandemic impacts in Black
+communities. A similar trend appeared when comparing counties by poverty
+status: high poverty counties exhibited substantially higher Covid
+severity than low poverty counties during the early pandemic. These
+patterns suggest that socioeconomic disadvantage was associated with
+more severe outcomes even when total case counts were comparable.
+</br></p>
+<p>In contrast, mask usage did not demonstrate the clear gradient we
+expected. The high mask usage and low mask usage maps looked relatively
+similar in both cases and severity. This likely reflects limitations of
+the dataset: mask use was measured only once, in July 2020, early in the
+pandemic and before major surges later that year and in 2021. Because it
+was based on self reported survey data, it may also reflect reporting
+biases or short term behavior rather than sustained prevention
+practices. </br></p>
+<p>Political affiliation also did not show strong or consistent
+differences in Covid severity. Early in the pandemic, Democratic leaning
+counties appeared darker on the case and death maps, but this seems
+primarily driven by the fact that major cities where early outbreaks
+were concentrated tend to vote Democratic. Once case and death counts
+later spread more evenly across the country, these differences largely
+diminished, and the political majority had no obvious relationship with
+severity in our visualization. </br></p>
+<p>Overall, the main conclusions from the map are that Covid 19 burden
+was widespread, but severity, not raw case counts revealed clearer
+social and structural disparities. Counties with higher proportions of
+Black residents and counties with high poverty levels experienced
+noticeably more severe outcomes, especially in 2020 and 2021. These
+findings are consistent with expectations from public health research,
+which has documented how structural inequities shape vulnerability to
+disease. The interactive map helps make these patterns visually
+accessible, enabling users to explore how demographic, socioeconomic,
+and political factors intersected with the trajectory of Covid 19 across
+the United States.</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
