@@ -7,7 +7,7 @@ navbar:
       href: index.html
     - text: "Covid by County: Interactive Map"
       menu:
-      - text: "Interative Map"
+      - text: "Interactive Map"
         href: shiny_map.html 
       - text: "Map Analysis"
         href: Shiny_map_analysis.html
