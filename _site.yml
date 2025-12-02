@@ -1,5 +1,5 @@
 name: "Mapping the Pandemic Landscape"
-output_dir: "."
+output_dir: "docs"
 navbar:
   title: "Mapping the Pandemic Landscape"
   right:
