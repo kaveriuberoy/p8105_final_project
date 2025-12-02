@@ -77,20 +77,28 @@ covid_demo_final_df = covid_demo_final_df |>
     black_prop = race_black_alone_male + race_black_alone_female
   )
 
-# load, keep only needed data, then simplify geometry to save memory
-counties_sf_raw = counties(cb = TRUE, year = 2020) |> 
-  st_transform(4326) |>
-  mutate(GEOID = str_pad(GEOID, 5, pad = "0")) |>
-  dplyr::select(GEOID, NAME, STATEFP, geometry)
 
-# simplifies shapes
-counties_sf = rmapshaper::ms_simplify(          
-  counties_sf_raw,
-  keep = 0.1,   
-  keep_shapes = TRUE
-)
+if (file.exists("counties_sf_simplified.rds")) {
 
-rm(counties_sf_raw)
+  # Cached version, faster
+  counties_sf <- readRDS("counties_sf_simplified.rds")
+
+} else {
+
+  # Build from raw, this is slow but now itll only run once
+  counties_sf_raw <- counties(cb = TRUE, year = 2020) |> 
+    st_transform(4326) |>
+    mutate(GEOID = str_pad(GEOID, 5, pad = "0")) |>
+    dplyr::select(GEOID, NAME, geometry)  
+
+  counties_sf <- rmapshaper::ms_simplify(
+    counties_sf_raw,
+    keep = 0.02,       
+    keep_shapes = TRUE
+  )
+
+  saveRDS(counties_sf, "counties_sf_simplified.rds")
+}
 
 # Join county shapes with demographics
 
