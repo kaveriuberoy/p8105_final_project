@@ -7,24 +7,10 @@
 # --- macOS Junk ---
 .DS_Store
 
-# --- Rendered Outputs (generated automatically) ---
-*.html          # index.html, shiny_map.html, etc.
-*.md            # knitted markdown
-*.utf8.md
-*_files/        # knitr support folders
-
-# Website build directory
-_site/
-site_libs/
-
 # --- Cache Directories ---
 cache/
 *_cache/
 
-# --- Data Files (local only; remove if you want them on GitHub Pages) ---
+# --- Data Files (optional) ---
 *.rds
 
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
