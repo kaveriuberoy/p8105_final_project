@@ -8,9 +8,9 @@ navbar:
     - text: "Covid by County: Interactive Map"
       menu:
       - text: "Interative Map"
-      href: shiny_map.html 
+        href: shiny_map.html 
       - text: "Map Analysis"
-      href: Shiny_map_analysis.html
+        href: Shiny_map_analysis.html
     - text: "Poverty and Race"
       href: Poverty_Race_COVID.html
     - text: "Violence"
