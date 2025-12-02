@@ -55,7 +55,7 @@ HTML('
 <div style="background:#f7f7f7; padding:15px; border-radius:6px; margin-top:25px;">
 
   <h3>Covid-19 and Violence</h3>
-  <p>See an investigation of Covid-19 and the incidence of violence:</p>
+  <p>See an investigation of Covid-19 and the incidence of community violence:</p>
   <p><strong><a href="violence_covid.html">View Analysis →</a></strong></p>
 
 </div>
