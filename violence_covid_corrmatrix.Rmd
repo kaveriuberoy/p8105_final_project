@@ -76,13 +76,14 @@ fig=
 fig
 ```
 
-This interactive 3D scatterplot visualizes how county-level violent crime rates, homicide rates, and COVID-19 deaths relate across the United States. Each point represents a county, and the vertical axis and color scale show the intensity of COVID-19 mortality in 2020. This view allows us to observe how violence-related factors correspond with pandemic outcomes when considered simultaneously. The patterns that emerge in the visualization are summarized below.
+This interactive 3D scatterplot visualizes how county-level violent crime rates, homicide rates, and COVID-19 deaths relate across the United States. Each point represents a county, and the vertical axis and color scale show the intensity of COVID-19 mortality in 2020. This view allows us to observe how violence-related factors correspond with pandemic outcomes when considered simultaneously. An interactive 3D plot was chosen to allow it  viewers to rotate and explore the joint distribution of all three continuous variables at once, revealing patterns that would be hard to see in separate 2D plots. The patterns that emerge in the visualization are summarized below.
 
 ```{r key_patterns, echo = FALSE}
 library(tidyverse)
 library(knitr)
 
-patterns_df <- tibble(
+patterns_df= 
+  tibble(
   `Key pattern` = c(
     "Higher homicide rates are linked with higher COVID-19 mortality.",
     "Violent crime rate also increases with COVID-19 deaths, but more gradually.",
