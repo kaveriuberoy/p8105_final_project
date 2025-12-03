@@ -1,27 +1,33 @@
 ---
 title: "Poverty & Race and COVID"
 output: html_document
-date: "2025-11-26"
 ---
+
+## Introduction:
+
+The goal of this project is to explore how structural factors—specifically income inequality, poverty, and racial composition—shaped COVID-19 outcomes in U.S. counties from 2020 to 2023. These factors are well-established social determinants of health and are known to influence exposure risk, access to care, and vulnerability to severe illness. To study these relationships, I created a series of visualizations and regression models that help illustrate how COVID-19 cases and deaths varied across places with different socioeconomic and demographic profiles.
+
+First, to examine the relationship between poverty and COVID-19 outcomes, we used two measures of socioeconomic disadvantage: an inequality index, calculated as the ratio of 80th percentile income to 20th percentile income (P80/P20), and the poverty rate. The inequality index reflects how many times higher-income households earn compared to lower-income households within the same region, providing a clear measure of income disparity. I then plotted this index against total COVID-19 deaths per capita and total COVID-19 cases per capita.
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
-```{r}
+```{r, include=FALSE}
 covid_demo_final_df <- readRDS("covid_demo_final_df.rds")
 covid_demo_final_df
 ```
 
 
-```{r}
+```{r, include=FALSE}
 final_df_1 = covid_demo_final_df |> 
   select(county, state, race_non_hispanic_white_alone_male, race_non_hispanic_white_alone_female, race_black_alone_male, race_black_alone_female, race_asian_alone_male, race_asian_alone_female, race_hispanic_male, race_hispanic_male, race_hispanic_female, health_percent_children_in_poverty,avg_income, poverty_rate, health_80th_percentile_income, health_20th_percentile_income, year, yearly_cases, yearly_deaths, population_2019)
 
 final_df_1
 ```
-```{r}
+```{r, include=FALSE}
 final_df <- final_df_1 |> 
   mutate(year = as.character(year)) |> 
   pivot_wider(
@@ -39,7 +45,7 @@ final_df
 ```
 
 
-```{r}
+```{r, include=FALSE}
 final_df_inequality = final_df |> 
   mutate(
     inequality = health_80th_percentile_income / health_20th_percentile_income, 
@@ -60,7 +66,7 @@ final_df_inequality
 ```
 
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ggplot(final_df_inequality,
        aes(x = inequality, y = total_cases_percap)) +
   geom_point() +
@@ -109,9 +115,10 @@ ggplot(final_df_inequality,
   theme_minimal()
 ```
 
-To examine the relationship between poverty and COVID-19 outcomes, we used two measures of socioeconomic disadvantage: an inequality index, calculated as the ratio of 80th percentile income to 20th percentile income (P80/P20), and the poverty rate. The inequality index reflects how many times higher-income households earn compared to lower-income households within the same region, providing a clear measure of income disparity. I then plotted this index against total COVID-19 deaths per capita and total COVID-19 cases per capita. Across both outcomes, the plots show a positive correlation, indicating that regions with higher income inequality tend to experience more COVID cases and deaths per capita. This is consistent with expected patterns, as communities facing greater socioeconomic barriers, including reduced access to medical care, testing, and vaccination, are more vulnerable to worse COVID-19 outcomes. To further explore this relationship, we analyzed each year separately to assess how the strength of the association changed over time. The results using poverty rate look similar as the results using the inequality index, reinforcing the conclusion that both poverty and income inequality are strongly linked to higher COVID-19 burden. 
+Across both outcomes, the plots show a positive correlation, indicating that regions with higher income inequality tend to experience more COVID cases and deaths per capita. This is consistent with expected patterns, as communities facing greater socioeconomic barriers, including reduced access to medical care, testing, and vaccination, are more vulnerable to worse COVID-19 outcomes. To further explore this relationship, we analyzed each year separately to assess how the strength of the association changed over time. The results using poverty rate look similar as the results using the inequality index, reinforcing the conclusion that both poverty and income inequality are strongly linked to higher COVID-19 burden. 
 
-```{r}
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 cases_long = final_df_inequality |> 
   pivot_longer(
     cols = starts_with("cases_percap_"),
@@ -155,7 +162,7 @@ ggplot(deaths_long, aes(x = inequality, y = deaths_percap)) +
   theme_minimal()
 ```
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 ggplot(cases_long, aes(x = poverty_rate, y = cases_percap)) +
   geom_point(alpha = 0.7) +
   geom_smooth(method = "lm", se = FALSE, color = "darkred") +
@@ -179,18 +186,27 @@ ggplot(deaths_long, aes(x = poverty_rate, y = deaths_percap)) +
   ) +
   theme_minimal()
 ```
+
+
 The scatterplots show a consistent positive association between both income inequality and poverty with COVID-19 cases and deaths per capita. Counties with higher inequality or greater poverty generally experienced worse COVID outcomes, showing the pattern we observed in the earlier graphs. However, the strength of these associations changes across years. In 2020 and 2021, the relationship between COVID cases and socioeconomic disadvantage is present but relatively modest. This might be because of the chaotic and geographically uneven spread patterns of the early pandemic, as well as limited testing capacity that might have made it seem that the burden of infection in many low-resource communities was not that severe. In contrast, COVID deaths show a much stronger link to inequality during these early years. This aligns with the disadvantages faced by high-inequality counties, such as higher prevalence of chronic health conditions, limited healthcare access, crowded housing, greater exposure among essential workers, and the absence of vaccines. All of these factors strengthened mortality once the virus reached these populations. By 2022, the association between socioeconomic disadvantage and COVID outcomes becomes more apparent, suggesting that once the initial shock of the pandemic stabilized, systemic inequities played a larger role in shaping outcomes. By 2023, case and death rates had fallen drastically and the inequality–outcome relationship appears nearly flat, but this is probably just becasue COVID cases and deaths fell strongly during 2023 and most places and people had become vaccinated.
 
 Given these clear year-to-year differences in the visual patterns, the next step was to fit an interaction model between inequality and year (inequality × year). This would allow for testing whether the effect of inequality on COVID outcomes changed over time and quantifies how the strength of this association strengthened or weakened across pandemic phases. we focused on inequality rather than including poverty rate as well, since both measures have shown nearly identical trends across all years and adding both would introduce redundancy. 
 
-```{r}
+```{r, echo=FALSE}
+library(knitr)
 #Cases model with year interaction
 lm_cases_all = lm(cases_percap ~ inequality * year, data = cases_long)
-summary(lm_cases_all)
+
 
 # Deaths model with year interaction
 lm_deaths_all = lm(deaths_percap ~ inequality * year, data = deaths_long)
-summary(lm_deaths_all)
+
+cases_tidy = broom::tidy(lm_cases_all)
+deaths_tidy = broom::tidy(lm_deaths_all)
+
+kable(cases_tidy, caption = "Cases Model with Year Interaction")
+kable(deaths_tidy, caption = "Deaths Model with Year Interaction")
+
 ```
 The interaction models quantitatively confirm that the relationship between inequality and COVID outcomes changed substantially over the course of the pandemic, in ways that match the visual patterns in the earlier plots. For COVID cases, inequality had little explanatory power in 2020 and 2021. However, by 2022, inequality became a strong and highly significant predictor of case rates. By 2023, there was no meaningful relationship with inequality remained. In contrast, the model for COVID deaths shows that inequality was a powerful predictor from the very beginning of the pandemic. The strength of this inequality effect begins to weaken in 2022 and especially 2023, likely due to the widespread availability of vaccines and improved treatments, which reduced mortality overall. 
 
@@ -198,7 +214,7 @@ But inequality and poverty are only part of the structural picture. COVID-19 out
 
 ## Race Analysis
 
-```{r}
+```{r, include=FALSE}
 df_race_combined = final_df_inequality |> 
   mutate(
     race_hispanic = race_hispanic_male + race_hispanic_female,
@@ -222,7 +238,7 @@ df_long = df_select |>
 df_long 
 ```
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(dplyr)
 library(heatmaply)
 
@@ -247,7 +263,7 @@ heatmaply(
 
 From this heat map, we see that counties with a higher proportion of Black residents show a strong positive correlation with total COVID deaths per capita, indicating that these communities experienced disproportionately severe mortality. In contrast, counties with larger Asian populations show a strong negative correlation with deaths, suggesting substantially lower mortality burden. We don't see any correlations between race and total cases. The next step is to study whether these race–COVID death associations strengthened, weakened, or shifted across years. We will just focus on deaths as these show preliminary promising results. For our future analyses, we will show scatterplots for different racial groups and COVID deaths over 2020-2023 as well as a heat map to show which relationships are significant. 
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 df_final_pivot = df_long |> 
   pivot_longer(
     cols = c(race_hispanic, race_white, race_black, race_asian), 
@@ -279,14 +295,14 @@ plot_race_vs_outcome = function(data, measure_filter, year_filter) {
 
 ```
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 plot_race_vs_outcome(df_final_pivot, "deaths", "2020")
 plot_race_vs_outcome(df_final_pivot, "deaths", "2021")
 plot_race_vs_outcome(df_final_pivot, "deaths", "2022")
 plot_race_vs_outcome(df_final_pivot, "deaths", "2023")
 ```
 
-```{r}
+```{r, echo=FALSE}
 
 results_deaths = df_final_pivot |> 
   filter(measure == "deaths") |>  
@@ -302,11 +318,15 @@ cleaned_sig_results_deaths = sig_results_deaths |>
   select(race, year, p.value)
 
 
-cleaned_sig_results_deaths
+library(knitr)
+
+kable(cleaned_sig_results_deaths,
+      caption = "Significant Race–Death Associations (p < 0.05)")
+
 
 ```
 
-```{r}
+```{r, echo=FALSE}
 
 all_race_years = expand.grid(
   race = unique(cleaned_sig_results_deaths$race),
