@@ -312,7 +312,7 @@ Yet one of the most concerning and less discussed trends was the
 simultaneous rise in community violence. According to the Center for
 American Progress, gun violence surged during the pandemic, with
 structural inequities and community-level vulnerabilities playing a
-major role.You can read more about this in their article: <strong><a
+major role. You can read more about this in their article: <strong><a
 href="https://www.americanprogress.org/article/covid-19s-impact-on-gun-violence-in-america/">“COVID-19’s
 Impact on Gun Violence in America”</a></strong>.</p>
 <p>Motivated by this national pattern, this analysis explores whether
@@ -330,8 +330,11 @@ effects during COVID-19.</p>
 <p>This plot highlights the 15 counties with the highest fatal police
 shooting rates between 2017 and 2020. The bar height shows shootings per
 100,000 residents, and the fill color shows COVID-19 deaths per 100,000
-in 2020. It displace whether places with high exposure to police
-violence also experienced high COVID mortality.</p>
+in 2020. It displays whether places with high exposure to police
+violence also experienced high COVID mortality. A horizontal bar chart
+with a color gradient was chosen for this display because it makes it
+easy to rank counties while simultaneously visualizing COVID burden as a
+second dimension.</p>
 <p><img src="violence_covid_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>This scatterplot illustrates the relationship between fatal police
 shootings per 100,000 residents (summed from 2017 to 2020) and COVID-19
@@ -340,8 +343,11 @@ individual counties, and the fitted linear trend line shows that there
 is no strong association between fatal police shootings and COVID-19
 mortality. Most counties cluster near zero fatal shootings, and the
 regression line is nearly flat, suggesting that the level of police
-violence in a county did not meaningfully predict COVID-19 death
-rates.</p>
+violence in a county did not meaningfully predict COVID-19 death rates.
+A scatterplot with a fitted regression line was chosen because it is the
+most direct way to assess the shape, strength, and linearity of the
+relationship between two continuous variables before fitting formal
+models.</p>
 </div>
 <div id="regression-models" class="section level1">
 <h1>Regression Models</h1>
@@ -372,7 +378,10 @@ in 2020. Most counties have zero or very few fatal police shootings per
 regression line is flat, indicating little to no linear relationship
 between fatal police shootings and COVID-19 death rates. While these
 forms of structural violence may be connected through deeper social
-factors, this crude model does not show a strong direct association.</p>
+factors, this crude model does not show a strong direct association. A
+simple unadjusted regression was create to quantify the crude
+association first, so that any added value of later, more complex models
+could be interpreted relative to this baseline.</p>
 <pre><code>## 
 ## Call:
 ## lm(formula = covid_deaths_per_100k_2020 ~ violent_crime_rate, 
@@ -399,7 +408,10 @@ regression line slopes upward, suggesting that counties with higher
 violent crime rates tend to experience higher COVID-19 deaths per 100k.
 Although the relationship is still noisy, the positive trend indicates
 that broader community violence may be linked with higher pandemic
-vulnerability.</p>
+vulnerability. Violent crime rate was chosen for this regression because
+it is a more continuous and less sparse measure than fatal shootings,
+making it better suited for detecting graded, population-level
+associations with COVID-19 mortality.</p>
 <pre><code>## 
 ## Call:
 ## lm(formula = covid_deaths_per_100k_2020 ~ shootings_per_100k + 
@@ -431,7 +443,11 @@ rate slopes upward more gently, suggesting a weaker but still positive
 association. In contrast, the line for fatal police shootings per 100k
 is nearly flat, showing that fatal police shootings are not a strong
 predictor of COVID-19 deaths once overall violence levels are taken into
-account.</p>
+account.A multivariable regression with marginal effects plots were
+created in order to isolate the independent relationship of each
+violence indicator with COVID-19 deaths while holding the others
+constant. Later, the coefficients were translated into visual
+predictions over realistic ranges of each predictor.</p>
 
 <div style="background:#f7f7f7; padding:15px; border-radius:6px; margin-top:25px;">
 
