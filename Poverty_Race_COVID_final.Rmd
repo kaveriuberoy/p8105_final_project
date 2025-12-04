@@ -5,9 +5,9 @@ output: html_document
 
 ## Introduction:
 
-The goal of this project is to explore how structural factors—specifically income inequality, poverty, and racial composition—shaped COVID-19 outcomes in U.S. counties from 2020 to 2023. These factors are well-established social determinants of health and are known to influence exposure risk, access to care, and vulnerability to severe illness. To study these relationships, I created a series of visualizations and regression models that help illustrate how COVID-19 cases and deaths varied across places with different socioeconomic and demographic profiles.
+The goal of this analysis is to explore how structural factors—specifically income inequality, poverty, and racial composition—shaped COVID-19 outcomes in U.S. counties from 2020 to 2023. These factors are well-established social determinants of health and are known to influence exposure risk, access to care, and vulnerability to severe illness. To study these relationships, I created a series of visualizations and regression models that help illustrate how COVID-19 cases and deaths varied across places with different socioeconomic and demographic profiles.
 
-First, to examine the relationship between poverty and COVID-19 outcomes, we used two measures of socioeconomic disadvantage: an inequality index, calculated as the ratio of 80th percentile income to 20th percentile income (P80/P20), and the poverty rate. The inequality index reflects how many times higher-income households earn compared to lower-income households within the same region, providing a clear measure of income disparity. I then plotted this index against total COVID-19 deaths per capita and total COVID-19 cases per capita.
+First, to examine the relationship between poverty and COVID-19 outcomes, we used two measures of socioeconomic disadvantage: an inequality index, calculated as the ratio of 80th percentile income to 20th percentile income (P80/P20), and the poverty rate.
 
 
 ```{r setup, include=FALSE}
@@ -115,7 +115,7 @@ ggplot(final_df_inequality,
   theme_minimal()
 ```
 
-Across both outcomes, the plots show a positive correlation, indicating that regions with higher income inequality tend to experience more COVID cases and deaths per capita. This is consistent with expected patterns, as communities facing greater socioeconomic barriers, including reduced access to medical care, testing, and vaccination, are more vulnerable to worse COVID-19 outcomes. To further explore this relationship, we analyzed each year separately to assess how the strength of the association changed over time. The results using poverty rate look similar as the results using the inequality index, reinforcing the conclusion that both poverty and income inequality are strongly linked to higher COVID-19 burden. 
+Across both outcomes, the plots show a positive correlation, indicating that regions with higher income inequality and poverty rate tend to experience more COVID cases and deaths per capita. To explore this relationship, we analyzed each year separately to assess how the strength of the association changed over time. 
 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -188,9 +188,15 @@ ggplot(deaths_long, aes(x = poverty_rate, y = deaths_percap)) +
 ```
 
 
-The scatterplots show a consistent positive association between both income inequality and poverty with COVID-19 cases and deaths per capita. Counties with higher inequality or greater poverty generally experienced worse COVID outcomes, showing the pattern we observed in the earlier graphs. However, the strength of these associations changes across years. In 2020 and 2021, the relationship between COVID cases and socioeconomic disadvantage is present but relatively modest. This might be because of the chaotic and geographically uneven spread patterns of the early pandemic, as well as limited testing capacity that might have made it seem that the burden of infection in many low-resource communities was not that severe. In contrast, COVID deaths show a much stronger link to inequality during these early years. This aligns with the disadvantages faced by high-inequality counties, such as higher prevalence of chronic health conditions, limited healthcare access, crowded housing, greater exposure among essential workers, and the absence of vaccines. All of these factors strengthened mortality once the virus reached these populations. By 2022, the association between socioeconomic disadvantage and COVID outcomes becomes more apparent, suggesting that once the initial shock of the pandemic stabilized, systemic inequities played a larger role in shaping outcomes. By 2023, case and death rates had fallen drastically and the inequality–outcome relationship appears nearly flat, but this is probably just becasue COVID cases and deaths fell strongly during 2023 and most places and people had become vaccinated.
+These show a consistent positive association between both income inequality and poverty with COVID-19 cases and deaths per capita. Counties with higher inequality or greater poverty generally experienced worse COVID outcomes, showing the pattern we observed in the earlier graphs. 
 
-Given these clear year-to-year differences in the visual patterns, the next step was to fit an interaction model between inequality and year (inequality × year). This would allow for testing whether the effect of inequality on COVID outcomes changed over time and quantifies how the strength of this association strengthened or weakened across pandemic phases. we focused on inequality rather than including poverty rate as well, since both measures have shown nearly identical trends across all years and adding both would introduce redundancy. 
+In 2020 and 2021, the relationship between COVID cases and socioeconomic disadvantage is present but relatively modest.
+By 2022, the association between socioeconomic disadvantage and COVID cases becomes significantly more apparent.
+By 2023, case and death rates had fallen drastically.
+
+For COVID deaths, we see drastically more deaths in 2020 and 2021. The deaths flatten out in 2022 and 2023. 
+
+Given these clear year-to-year differences in the visual patterns, the next step was to fit an interaction model between inequality and year (inequality × year). This would allow for testing whether the effect of inequality on COVID outcomes changed over time and quantifies how the strength of this association strengthened or weakened across pandemic phases. We focused on inequality rather than including poverty rate as well, since both measures have shown nearly identical trends across all years and adding both would introduce redundancy. 
 
 ```{r, echo=FALSE}
 library(knitr)
@@ -208,9 +214,9 @@ kable(cases_tidy, caption = "Cases Model with Year Interaction")
 kable(deaths_tidy, caption = "Deaths Model with Year Interaction")
 
 ```
-The interaction models quantitatively confirm that the relationship between inequality and COVID outcomes changed substantially over the course of the pandemic, in ways that match the visual patterns in the earlier plots. For COVID cases, inequality had little explanatory power in 2020 and 2021. However, by 2022, inequality became a strong and highly significant predictor of case rates. By 2023, there was no meaningful relationship with inequality remained. In contrast, the model for COVID deaths shows that inequality was a powerful predictor from the very beginning of the pandemic. The strength of this inequality effect begins to weaken in 2022 and especially 2023, likely due to the widespread availability of vaccines and improved treatments, which reduced mortality overall. 
+The interaction models quantitatively confirm that the relationship between inequality and COVID outcomes changed substantially over the course of the pandemic, in ways that match the visual patterns in the earlier plots.
 
-But inequality and poverty are only part of the structural picture. COVID-19 outcomes in the United States were also strongly patterned by racial disparities. We aimed to analyze the impact of different racial groups on COVID-19 cases and deaths. The following sections outline this analysis.
+We also aimed to analyze the impact of different racial groups on COVID-19 cases and deaths. The following sections outline this analysis.
 
 ## Race Analysis
 
@@ -261,7 +267,9 @@ heatmaply(
 
 ```
 
-From this heat map, we see that counties with a higher proportion of Black residents show a strong positive correlation with total COVID deaths per capita, indicating that these communities experienced disproportionately severe mortality. In contrast, counties with larger Asian populations show a strong negative correlation with deaths, suggesting substantially lower mortality burden. We don't see any correlations between race and total cases. The next step is to study whether these race–COVID death associations strengthened, weakened, or shifted across years. We will just focus on deaths as these show preliminary promising results. For our future analyses, we will show scatterplots for different racial groups and COVID deaths over 2020-2023 as well as a heat map to show which relationships are significant. 
+We see that counties with a higher proportion of Black residents show a strong positive correlation with total COVID deaths per capita. In contrast, counties with larger Asian populations show a strong negative correlation with deaths. 
+
+The next step is to study whether these race–COVID death associations strengthened, weakened, or shifted across years. We will just focus on deaths as these show preliminary promising results. 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 df_final_pivot = df_long |> 
@@ -354,10 +362,9 @@ ggplot(signif_df, aes(x = year, y = race, fill = significant)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Both the scatterplot and heatmap analyses indicate that the proportion of the Asian population in counties was consistently and strongly associated with COVID-19 death rates across all years from 2020 to 2023. This suggests persistent disparities affecting this group throughout the pandemic. However, it is important to note that the overall representation of the Asian population in many counties is relatively low, which may amplify the perceived significance of this relationship despite a limited sample size.
+The proportion of the Asian population in counties was consistently and strongly associated with decreased COVID-19 death rates across all years from 2020 to 2023.
 
-In contrast, the Black population showed a significant association with COVID-19 mortality primarily during the early years of 2020 and 2021, with this relationship diminishing in the subsequent years. The Hispanic and White populations showed significant associations with COVID-19 death rates in 2020, 2022, and 2023, but not in 2021, indicating that the impact of these groups on COVID-19 mortality fluctuated over time.
+In contrast, the Black population showed a significant association with COVID-19 mortality primarily during the early years of 2020 and 2021, with this relationship diminishing in the subsequent years.
 
-These findings suggest that the relationship between race and COVID-19 mortality was dynamic and likely influenced by evolving social, economic, and public health factors throughout the course of the pandemic.
+The Hispanic and White populations showed significant associations with COVID-19 death rates in 2020, 2022, and 2023, but not in 2021. In the scatterplot, we visually see a positive correlation in Hispanic populations and negative correlation in the White population in early years. More analysis on this in analysis section.
 
-For future analyses, we plan to investigate the interaction effects between poverty and race to better understand how socioeconomic status may modify the relationship between racial demographics and COVID-19 outcomes.
