@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Evan Kennedy elk2149, Amrutha Banda ab6169, Kaveri Uberoy kiu2103, Suhina Sharma ss7636" />
+
+
+<title>Mapping the Pandemic Landscape: Final Report</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.5.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Mapping the Pandemic Landscape</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="index.html">Introduction</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Covid by County: Interactive Map
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="https://ekennedycu.shinyapps.io/shiny_map/">Interactive Map</a>
+    </li>
+    <li>
+      <a href="Shiny_map_analysis.html">Map Analysis</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="Poverty_Race_COVID_final.html">Poverty and Race</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Violence
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="violence_covid.html">Analysis of Violence and COVID-19</a>
+    </li>
+    <li>
+      <a href="violence_covid_corrmatrix.html">Explore 3D-Plot</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="Final_Report.html">Final Report</a>
+</li>
+<li>
+  <a href="https://github.com/kaveriuberoy/p8105_final_project">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Mapping the Pandemic Landscape: Final
+Report</h1>
+<h4 class="author">Evan Kennedy elk2149, Amrutha Banda ab6169, Kaveri
+Uberoy kiu2103, Suhina Sharma ss7636</h4>
+
+</div>
+
+
+<div id="motivation" class="section level3">
+<h3><strong>Motivation</strong></h3>
+<p>The overarching goal of this project was to understand how
+structural, demographic, socioeconomic, political, and behavioral
+factors shaped COVID-19 outcomes across U.S. counties from 2020 to 2023.
+While the virus spreads biologically, the pandemic’s impacts were
+profoundly influenced by entrenched social determinants of health. Our
+project therefore examined how variables such as race, poverty, income
+inequality, mask usage, political affiliation, and community violence
+related to county-level COVID-19 cases, deaths, and severity.</p>
+<p>We approached the problem through three major components. The first
+was the development of an interactive Shiny map designed to visualize
+spatial disparities and compare outcomes across groups such as high- and
+low-poverty counties or counties with high and low proportions of Black
+residents. The second involved statistical analyses examining the
+relationships between poverty, race, inequality, and COVID-19 mortality
+over time. The third explored how violence - including homicide rates,
+violent crime, and fatal police shootings - related to COVID-19
+outcomes. Together, these components aimed to reveal how structural
+inequities shaped the trajectory of the pandemic.</p>
+</div>
+<div id="related-work" class="section level3">
+<h3><strong>Related Work</strong></h3>
+<p>In particular, we were inspired by research highlighting racial
+disparities in Covid-19 outcomes, including “Hospitalization and
+Mortality among Black Patients and White Patients with Covid-19”,
+Price-Haywood et al. (2020) and “Racial Health Disparities and Covid-19
+- Caution and Context”, Chowkwanyun &amp; Reed (2020), which we learned
+about in our introduction to public health course, which explore how
+systemic factors like healthcare access and ‘weathering’ impact disease
+severity among Black Americans. These papers highlighted how, due to
+systemic biases, black people are more likely to have their health
+concerns dismissed or not sufficiently addressed as compared to white
+people, and do not receive the same level of care overall, and therefore
+are more likely to experience severe cases of Covid. While we were
+initially interested in racial disparities, we expanded our inquiry to
+include additional county-level factors such as poverty, political
+affiliation, and mask use. We also wanted to explore whether
+county-level violence indicators were related to COVID-19 outcomes in
+the United States. Early in the pandemic, several national reports
+described rising community violence and highlighted how structural
+conditions influenced health risks. Motivated by these patterns, our
+question asked whether places with higher levels of violence also
+experienced worse COVID-19 outcomes. In class exercises like mapping
+datasets such as Airbnb listings and exploring Shiny apps inspired our
+approach to interactive county-level visualization. We used public
+datasets from The New York Times (COVID-19 cases and deaths) and a
+public dataset that compiled Census/ACS demographic data, which allowed
+us to link health outcomes with socioeconomic and political variables.
+Our work aims to combine public health, demographic, and political data
+into a unified, interactive visualization framework.</p>
+</div>
+<div id="initial-questions" class="section level3">
+<h3><strong>Initial Questions</strong></h3>
+<p>At the outset, we aimed to answer several broad questions: How did
+COVID-19 cases and deaths vary geographically across U.S. counties? Were
+there identifiable patterns associated with racial composition, poverty
+levels, political affiliation, or mask usage? Could these patterns be
+meaningfully visualized interactively? As we expanded the project,
+additional questions emerged. For the Shiny map, we asked how temporal
+trends interacted with structural factors across multiple years and
+whether counties with higher proportions of Black residents, higher
+poverty, or lower mask use experienced disproportionate severity. For
+the poverty and race statistical analyses, we focused on how inequality,
+poverty, and racial composition predicted COVID-19 outcomes and how
+these relationships changed over time. For the violence analysis, our
+original interest in fatal police shootings evolved once we saw how
+sparse the data were, leading us to investigate homicide rates and
+violent crime as potentially more informative indicators of community
+vulnerability.</p>
+</div>
+<div id="data" class="section level3">
+<h3><strong>Data</strong></h3>
+</div>
+<div id="shiny-map-data" class="section level3">
+<h3>Shiny Map Data</h3>
+<p>The Shiny map relied on six datasets. COVID-19 data came from the New
+York Times daily county-level data from 2020 through 2023. Mask usage
+data came from a July 2020 nationwide survey. Demographic,
+socioeconomic, and political data were taken from a compiled ACS/Census
+dataset including race, income, and poverty variables. Data cleaning
+required harmonizing county names and FIPS codes across datasets,
+calculating cumulative and yearly COVID-19 cases and deaths, computing
+per-100,000 rates, merging demographic and political data with COVID-19
+outcomes, and preparing mask usage variables. We initially struggled
+because some ‘counties’ in the demographic dataset we had were not
+considered counties by the NYT data, such as census areas in Alaska and
+boroughs of NYC. Another issue we came across was that we could not
+cleanly add up all the covid data, because it was already cumulative in
+some senses (so we were getting huge, unrealistic numbers when we
+cumulated across the data), so we needed to adjust how we dealt with
+these different situations by cumulating differently and choosing how we
+wanted to include each county. We defined high-exposure groups using
+75th quantiles for racial proportion and mask use, and a 15% cutoff for
+poverty (although 20% is how it is defined by the USDA, to give us a
+more extensive, clean visual).</p>
+</div>
+<div id="poverty-and-race-analysis-data" class="section level3">
+<h3>Poverty and Race Analysis Data</h3>
+<p>The poverty and race dataset used the dataset with compiled
+county-level COVID-19 cases and deaths with demographic and
+socioeconomic measures per county. COVID-19 outcomes were measured as
+cases and deaths per capita to ensure comparability across counties of
+different sizes. To calculate these per-capita measures, the number of
+cases and deaths for each year was divided by the county’s population.
+Because only one population estimate was available per county, we
+assumed population size remained relatively stable across the four-year
+period. The key socioeconomic variables used in this analysis were the
+poverty rate and an income inequality index defined as the ratio of the
+80th percentile income to the 20th percentile income (P80/P20). This
+index reflects the degree of income disparity within each county, with
+higher values indicating a larger gap between high- and low-income
+households. Racial composition was represented as the proportions of
+Black, White, Asian, and Hispanic residents, standardized as percentages
+of county population.</p>
+</div>
+<div id="violence-analysis-data" class="section level3">
+<h3>Violence Analysis Data</h3>
+<p>For the violence analysis, we merged county-level COVID-19 cases and
+deaths from 2020 with homicide rates, violent crime rates, and fatal
+police shooting data. Fatal police shootings were reshaped from wide to
+long format, summed across 2017–2020, and converted to per-100,000
+population. Homicide and violent crime rates were also standardized
+per-capita. The final dataset included one row per county representing
+all COVID-19 and violence measures.</p>
+</div>
+<div id="exploratory-analysis" class="section level3">
+<h3><strong>Exploratory Analysis</strong></h3>
+</div>
+<div id="shiny-map-exploratory-analysis" class="section level3">
+<h3>Shiny Map Exploratory Analysis</h3>
+<p>To explore geographic patterns, we built an interactive Shiny map
+that allows users to compare the spread of covid in high versus low
+exposure groups for variables such as poverty, racial composition, mask
+usage, and political affiliation. Users can toggle years (2020–2023) and
+metrics (cases, deaths, and death-to-case ratio, which we treated as a
+severity measure), which define the color spread. We used side-by-side
+maps to allow direct comparison across groups. Because initial color
+gradients hid meaningful variation, we used a logarithmic transformation
+for visualization. We also added the severity metric to highlight
+disparities that raw case counts obscured. The map initially loaded very
+slowly due to the complexity of mapping all 3000 U.S. counties as
+polygons.</p>
+</div>
+<div id="poverty-and-race-exploratory-analysis" class="section level3">
+<h3>Poverty and Race Exploratory Analysis</h3>
+<p>For socioeconomic and racial variables, we constructed scatterplots
+showing relationships between inequality, poverty, and COVID-19 death
+and case rates. Clear positive associations emerged between inequality
+and COVID-19 deaths, and between poverty and COVID outcomes. Temporal
+breakdowns revealed that inequality had a smaller relationship with
+cases early in the pandemic but a strong relationship with deaths in
+2020–2021. This could be because structural vulnerabilities that
+increase mortality risk, such as limited access to treatment and the
+lack of vaccines, lead to greater fatality. These factors made
+infections far more likely to result in death early in the pandemic,
+even before many cases were fully detected or recorded. Inequality
+became a stronger predictor of case rates beginning in 2022, a trend
+likely driven by more uniform virus spread and improved testing showed
+clearer disparities in exposure and infection rates. We also created
+interactive heatmaps to examine racial disparities. Counties with larger
+Black and Hispanic populations showed strong positive associations with
+death rates in 2020 and 2021, while Asian population proportion showed a
+strong negative association with deaths across all years.</p>
+</div>
+<div id="violence-exploratory-analysis" class="section level3">
+<h3>Violence Exploratory Analysis</h3>
+<p>We began by visualizing the 15 counties with the highest fatal police
+shooting rates between 2017 and 2020. A horizontal bar chart with a
+color scale for COVID-19 deaths revealed that although a few counties
+had very high fatal shooting rates, their COVID-19 death rates varied
+widely. This suggested that fatal police shootings alone might not be a
+reliable indicator of community vulnerability during the pandemic. We
+then created a scatterplot of fatal police shootings per 100,000
+residents against COVID-19 deaths per 100,000. Most counties had zero or
+very few fatal shootings, and the regression line was nearly flat. This
+confirmed that fatal police shootings showed little meaningful
+relationship with COVID-19 mortality. Next, we explored violent crime
+rates, which were more continuous and varied across counties. A
+scatterplot revealed a positive trend, with higher violent crime rates
+associated with higher COVID-19 death rates. Although the relationship
+was noisy, the upward slope suggested that broader patterns of community
+violence might be linked to higher COVID-19 mortality. These early
+visualizations guided our decision to continue the analysis using formal
+regression models that examined each violence measure both separately
+and together.</p>
+</div>
+<div id="additional-analysis" class="section level3">
+<h3><strong>Additional Analysis</strong></h3>
+</div>
+<div id="shiny-map-additional-analysis" class="section level3">
+<h3>Shiny Map Additional Analysis</h3>
+<p>There were some initial issues with the map, such as the way the heat
+map colors the spread of covid, since many counties were pretty similar
+when viewed in the lens of larger scales. We ended up using a
+logarithmic transformation to make the spread differences more dramatic/
+visible when it came to the heat map. Also, the covid severity metric
+was an important addition because the covid cases and deaths on their
+own were pretty variable and widespread, but once we mapped by deaths
+per case, then it was a lot more apparent how different socioeconomic
+exposures impacted covid severity. We decided against using per capita
+values for cases and deaths, so the map could also show how case and
+death counts were concentrated around city areas/ generally spread
+geographically, but the covid severity metric acted as a useful way to
+standardize severity to view the impact of covid on each county. Also,
+we used the mapshaper tool to speed up loading the map.</p>
+</div>
+<div id="poverty-and-race-statistical-analysis" class="section level3">
+<h3>Poverty and Race Statistical Analysis</h3>
+<p>We fitted interaction regression models with inequality × year
+interactions for both COVID-19 cases and deaths. Inequality had minimal
+impact on cases in 2020–2021 but became strongly predictive in 2022,
+then lost significance in 2023 as overall cases declined. Inequality was
+a strong predictor of deaths in 2020 and 2021, with diminishing effects
+as vaccines and treatments became widespread.</p>
+<p>Racial composition analyses showed that Asian population proportion
+consistently predicted decreased mortality. This could be associated
+with factors such as better healthcare access, higher vaccination rates,
+and strong community adherence to preventive measures. However, it is
+important to note that the overall representation of the Asian
+population in many counties is relatively low, which may amplify the
+perceived significance of this relationship despite a limited sample
+size. Black population proportion was positively associated with
+mortality in 2020 and 2021, reflecting structural disadvantages such as
+uninsured rates, overrepresentation in essential work, and crowded
+housing that increased exposure risk early in the pandemic.
+Interestingly, Hispanic population proportion was significant in 2020,
+2022, and 2023, reflecting ongoing disparities in exposure and vaccine
+access; these patterns may appear weaker in scatterplots but were
+detected in the statistical models. This may be because factors like
+varying local policies, differences in vaccine rollout timing, or other
+unmeasured socioeconomic variables may create complex or non-linear
+patterns that weaken visible trends in scatterplots but are still
+detected by the statistical models.</p>
+<p>White population proportion showed negative correlations early in the
+pandemic but flattened over time and also showed significant
+associations in 2020, 2022, and 2023. This may be due to a combination
+of factors such as differences in population distribution, better
+healthcare access, and vaccine access in more wealthy areas, and lower
+overall exposure in certain regions.</p>
+<p>Future analyses will examine race × poverty interactions to better
+understand combined structural effects.</p>
+</div>
+<div id="violence-statistical-analysis" class="section level3">
+<h3>Violence Statistical Analysis</h3>
+<p>We began our formal analysis with a crude linear regression modeling
+COVID-19 deaths as a function of fatal police shootings per 100,000.
+This model showed almost no association, which matched the exploratory
+plots. In the second model, we examined violent crime rates and found a
+small but clear positive relationship. Counties with higher violent
+crime rates tended to experience more COVID-19 deaths, although the
+effect size was modest.</p>
+<p>The third and most informative model included all three violence
+indicators at once: fatal police shootings, homicide rates, and violent
+crime rates. This allowed us to isolate the independent contribution of
+each factor. We then used the model to create marginal effects plots
+that predicted COVID-19 deaths while holding the other predictors at
+their median values. These plots showed that homicide rates had the
+strongest and steepest upward association with COVID-19 deaths. Violent
+crime rates also displayed a positive relationship, although the effect
+was smaller. Fatal police shootings remained essentially flat,
+suggesting that once general violence levels were accounted for, fatal
+police shootings did not meaningfully predict COVID-19 mortality.</p>
+</div>
+<div id="discussion" class="section level3">
+<h3><strong>Discussion</strong></h3>
+</div>
+<div id="shiny-map-findings" class="section level3">
+<h3>Shiny Map Findings</h3>
+<p>Especially in 2020, COVID-19 cases and deaths were concentrated
+around major metropolitan areas- particularly in the Northeast, Midwest,
+and parts of the South- reflecting population density. However, nearly
+all counties experienced significant burdens by 2021. The severity
+metric revealed the most meaningful disparities. Counties with high
+proportions of Black residents and counties with high poverty levels
+showed substantially higher deaths-per-case in 2020 and 2021. These
+patterns suggest that socioeconomic disadvantage was associated with
+more severe outcomes even when total case counts were comparable,
+supporting prior research indicating that structural factors such as
+differential access to healthcare, occupational exposure, and chronic
+stress weathering contributed to disproportionate pandemic impacts in
+Black communities. Mask usage did not show clear differences, likely due
+to limitations of the July 2020 single-timepoint dataset. Political
+affiliation also did not show strong or consistent differences in Covid
+severity. Early in the pandemic, Democratic leaning counties appeared
+darker on the case and death maps, but this seems primarily driven by
+the fact that major cities where early outbreaks were concentrated tend
+to vote Democratic. Once case and death counts later spread more evenly
+across the country, these differences largely diminished, and the
+political majority had no obvious relationship with severity in our
+visualization. Overall, severity revealed structural inequities masked
+by raw counts.</p>
+</div>
+<div id="poverty-and-race-findings" class="section level3">
+<h3>Poverty and Race Findings</h3>
+<p>Inequality and poverty were strongly associated with COVID-19 deaths,
+particularly in the early years when vaccines and treatments were not
+yet widely available. The relationship between inequality and case rates
+strengthened in 2022. Racial disparities followed temporal patterns:
+Black and Hispanic populations were strongly associated with elevated
+mortality early in the pandemic, while Asian populations consistently
+showed reduced mortality. These findings reflect structural inequities
+in healthcare access, occupational risk, and living conditions. The
+dynamics of racial associations across years suggest evolving influences
+of vaccines, variant waves, and policy landscapes.</p>
+</div>
+<div id="violence-findings" class="section level3">
+<h3>Violence Findings</h3>
+<p>Homicide rates and violent crime rates were meaningfully associated
+with COVID-19 mortality, whereas fatal police shootings were not.
+Because fatal shootings are rare events, they fail to capture broader
+structural vulnerabilities associated with community violence. In
+contrast, homicide and violent crime rates reflect chronic stress,
+economic instability, and systemic disadvantage, all of which likely
+exacerbated susceptibility to severe COVID-19 outcomes. These findings
+highlight how the pandemic magnified existing structural harms rather
+than affecting communities uniformly.</p>
+</div>
+<div id="conclusion" class="section level3">
+<h3><strong>Conclusion</strong></h3>
+<p>By integrating spatial visualization, socioeconomic and racial
+analyses, and community violence measures, this project demonstrates
+that COVID-19 outcomes were shaped by deep structural inequalities
+across the United States. Severity - not raw case counts - revealed the
+most striking disparities. Poverty, inequality, racial composition, and
+community violence all contributed to patterns of vulnerability,
+especially in the early years of the pandemic. These results reinforce
+longstanding evidence that structural determinants of health shape both
+everyday wellbeing and crisis outcomes, and they point toward the need
+for policy responses that address underlying inequities rather than only
+acute health threats.</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

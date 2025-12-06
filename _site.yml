@@ -24,5 +24,7 @@ navbar:
           href: violence_covid.html
         - text: "Explore 3D-Plot"
           href: violence_covid_corrmatrix.html
+    - text: "Final Report"
+      href: Final_Report.html
     - icon: fa-github fa-lg
       href: https://github.com/kaveriuberoy/p8105_final_project
